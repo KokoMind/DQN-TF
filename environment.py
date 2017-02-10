@@ -70,3 +70,7 @@ class Environment(object):
 
 	def _state_processor(self, sess, state):
 		return sess.run(self.state, feed_dict={self.input_state: state})
+
+	@property
+	def n_actions(self):
+		return self.env.action_space.n
