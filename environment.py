@@ -10,9 +10,9 @@ class Environment(object):
 	def __init__(self, env_name, experiment_dir, state_processor_params, record_video_every=10):
 		"""
 		state_processor_params = { "resize_shape": (h, w),
-									"crop_box": (y1, x1, y2, x2),
-									"gray": False,
-									"frames_num": 1 }
+					"crop_box": (y1, x1, y2, x2),
+					"rgb": False,
+					"frames_num": 1 }
 		"""
 		self.env = gym.envs.make(env_name)
 		self.monitor_path = os.path.join(experiment_dir, "monitor")
@@ -69,4 +69,8 @@ class Environment(object):
 		gym.upload(self.monitor_path, api_key=api_key)
 
 	def _state_processor(self, sess, state):
+<<<<<<< HEAD
 		return sess.run(self.state, feed_dict={self.input_state: state})
+=======
+		return sess.run(self.state, feed_dict={self.state: state})
+>>>>>>> 3514b944bed4f7afcfdd2e8cf3ab4ec8311dc48a
