@@ -16,6 +16,7 @@ class Environment(object):
 		"""
 		self.__env = gym.envs.make(env_name)
 		self.__monitor_path = os.path.join(experiment_dir, "monitor")
+		self.__valid_actions = [x for x in range(self.n_actions)]
 
 		if not os.path.exists(self.__monitor_path):
 			os.makedirs(self.__monitor_path)
@@ -77,4 +78,4 @@ class Environment(object):
 	
 	@property
 	def valid_actions(self):
-		return [x for x in range(self.n_actions)]
+		return self.__valid_actions
