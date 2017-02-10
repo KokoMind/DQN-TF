@@ -22,3 +22,11 @@ class BaseModel(object):
 
     def update(self, sess, state, action, y):
         raise NotImplemented()
+
+
+class Estimator(BaseModel):
+    """Our Estimator Network"""
+
+    def __init__(self):
+        BaseModel.__init__(self)
+        pass
