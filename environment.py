@@ -9,9 +9,9 @@ class Environment(object):
 	def __init__(self, env_name, experiment_dir, state_processor_params, record_video_every=10):
 		"""
 		state_processor_params = { "resize_shape": (h, w),
-									"crop_box": (y1, x1, y2, x2),
-									"rgb": False,
-									"frames_num": 1 }
+					"crop_box": (y1, x1, y2, x2),
+					"rgb": False,
+					"frames_num": 1 }
 		"""
 		self.env = gym.envs.make(env_name)
 		self.monitor_path = os.path.join(experiment_dir, "monitor")
