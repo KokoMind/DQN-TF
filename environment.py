@@ -69,8 +69,4 @@ class Environment(object):
 		gym.upload(self.monitor_path, api_key=api_key)
 
 	def _state_processor(self, sess, state):
-<<<<<<< HEAD
 		return sess.run(self.state, feed_dict={self.input_state: state})
-=======
-		return sess.run(self.state, feed_dict={self.state: state})
->>>>>>> 3514b944bed4f7afcfdd2e8cf3ab4ec8311dc48a
