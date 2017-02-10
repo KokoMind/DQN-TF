@@ -45,7 +45,7 @@ class Environment(object):
 				self.__frames_num = 1
 
 	def reset(self, sess):
-		state = self__.env.reset()
+		state = self.__env.reset()
 		state = self.__state_processor(sess, state)
 		if self.__frames_num > 1:
 			state = np.squeeze(state)
@@ -70,3 +70,11 @@ class Environment(object):
 
 	def __state_processor(self, sess, state):
 		return sess.run(self.__state, feed_dict={self.__input_state: state})
+
+	@property
+	def n_actions(self):
+		return self.__env.action_space.n
+	
+	@property
+	def valid_actions(self):
+		return [x for x in range(self.n_actions)]
