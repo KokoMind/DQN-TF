@@ -74,3 +74,7 @@ class Environment(object):
 	@property
 	def n_actions(self):
 		return self.env.action_space.n
+	
+	@property
+	def valid_actions(self):
+		return [0, 1, 2, 3]
