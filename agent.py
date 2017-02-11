@@ -22,7 +22,7 @@ class Agent:
         self.memory = ReplayMemory(config.state_shape, config.rep_mem_max)
 
         self.init_dirs()
-        self.estimator = DQN()
+        self.estimator = DQN()  ## make one object have the 2 networks # gemy
         self.saver = tf.train.Saver()
 
         self.summary_writer = tf.train.SummaryWriter(self.summary_dir)
@@ -156,7 +156,7 @@ class Agent:
                 state_batch, next_state_batch, action_batch, reward_batch, done_batch = self.memory.get_batch(self.config.batch_size)
 
                 # Calculate q values and targets
-                q_values_next = self.estimator.predict(next_state_batch,type="target" )
+                q_values_next = self.estimator.predict(next_state_batch,type="target" ) # specify network type you want to use # gemy
                 targets_batch = reward_batch + np.invert(done_batch).astype(np.float32) * self.config.discount_factor * np.amax(q_values_next, axis=1)
 
                 # Perform gradient descent update
