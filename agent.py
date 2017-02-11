@@ -151,14 +151,17 @@ class Agent:
 
                 # Calculate targets Then Compute the loss
                 q_values_next = self.estimator.predict(next_state_batch, type="target")
-                targets_batch = reward_batch + np.invert(done_batch).astype(np.float32) * self.config.discount_factor * np.amax(
-                    q_values_next, axis=1)
-                loss = self.estimator.update(state_batch, action_batch, targets_batch)
+
+                targets_batch = reward_batch + np.invert(done_batch).astype(np.float32) * self.config.discount_factor * np.amax(q_values_next, axis=1)
+                _ = self.estimator.update(state_batch, action_batch, targets_batch)
 
                 # Update statistics
                 # Add summaries to tensorboard
                 # TODO add summaries to tensorboard
                 # What we will do ya gama3a ?????
+                # if Done
+                # add reward
+                # add length
 
                 if done:  # IF terminal state so exit the episode
                     break
