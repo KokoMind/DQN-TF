@@ -110,10 +110,9 @@ class DQN(BaseModel):
         self.shape = config.state_shape
         self.learning_rate = config.learning_rate
         self.build_model(num_outputs=self.num_actions, shape=self.shape)
-        self.update_target_network()
         with tf.variable_scope("DQN"):
             # placeholders
-            self.actions = tf.placeholder(tf.float32, shape=[None])
+            self.actions = tf.placeholder(tf.int32, shape=[None])
             self.targets = tf.placeholder(tf.float32, [None])
             gather_indices = tf.range(tf.shape(self.b_out)[0]) * tf.shape(self.b_out)[1] + self.actions
             self.action_predictions = tf.gather(tf.reshape(self.b_out, [-1]), gather_indices)

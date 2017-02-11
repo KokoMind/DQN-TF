@@ -22,7 +22,8 @@ class ReplayMemory:
         add transition to memory
 
         """
-        assert state.shape == self.shape
+
+        assert state.shape ==tuple(self.shape)
         self.states[self.idx] = state
         self.next_states[self.idx] = next_state
         self.actions[self.idx] = action
