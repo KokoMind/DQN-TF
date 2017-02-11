@@ -138,7 +138,7 @@ class Agent:
                 self.global_step_assign_op.eval({self.global_step_input: self.global_step_tensor.eval(self.sess) + 1})
 
                 # time to update the target estimator
-                if self.global_step_tensor.eval() % self.config.update_target_estimator_every == 0:
+                if self.global_step_tensor.eval(self.sess) % self.config.update_target_estimator_every == 0:
                     self.update_target_network()
 
                 # Calculate the Epsilon for this time step
