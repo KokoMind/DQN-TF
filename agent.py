@@ -30,7 +30,7 @@ class Agent:
         self.init_global_step()
 
         # Intialize the DQN graph which contain 2 Networks Target and Q
-        self.estimator = DQN()
+        self.estimator = DQN(sess, config, self.environment.n_actions)
 
         # To initialize all variables
         self.init = tf.group(tf.global_variables_initializer(), tf.local_variables_initializer())

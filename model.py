@@ -23,7 +23,7 @@ class BaseModel(object):
     def __init__(self):
         pass
 
-    def build_model(self, name, num_outputs, shape):
+    def build_model(self, num_outputs, shape):
         self.behaviour_weights = {}
         self.target_weights = {}
         initializer = tf.truncated_normal_initializer(0, 0.02)
@@ -102,14 +102,14 @@ class BaseModel(object):
 class DQN(BaseModel):
     """   Our Estimator Network   """
 
-    def __init__(self, sess=None, config=None):
+    def __init__(self, sess, config, num_actions):
         BaseModel.__init__(self)
         self.name = config.name
         self.sess = sess
-        self.num_actions = config.num_action_space
+        self.num_actions = num_actions
         self.shape = config.shape
         self.learning_rate = config.learning_rate
-        self.build_model(num_outputs=self.num_actions, shape=self.shape, name=self.name)
+        self.build_model(num_outputs=self.num_actions, shape=self.shape)
         self.update_target_network()
         with tf.variable_scope("DQN"):
             # placeholders
