@@ -1,8 +1,6 @@
 """ Let's Begin the action :P  """
 
 import tensorflow as tf
-
-from tensorflow import reset_default_graph
 from environment import Environment
 from agent import Agent
 from config import get_config
@@ -10,7 +8,7 @@ from config import get_config
 
 def main():
     # Reset the graph
-    reset_default_graph()
+    tf.reset_default_graph()
 
     # Get the Config of the program
     config = get_config()
