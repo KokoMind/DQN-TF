@@ -9,7 +9,7 @@ class EnvConfig(object):
                               "gray": True,
                               "frames_num": 4}
     monitor = True
-    record_video_every = 10
+    record_video_every = 100
 
 
 class AgentConfig(object):
@@ -21,7 +21,7 @@ class AgentConfig(object):
 
 
 class ReplayMemoryConfig(object):
-    rep_max_size = 500000
+    rep_max_size = 300000
     replay_memory_init_size = 50000
 
 
