@@ -6,7 +6,6 @@ import os
 
 def timeit(f):
     def timed(*args, **kwargs):
-
         start_time = time.time()
         result = f(*args, **kwargs)
         end_time = time.time()
@@ -17,11 +16,13 @@ def timeit(f):
     return timed
 
 
-
-def create_dirs(summary_dir,checkpoint_dir):
-    if summary_dir:
-        if not os.path.exists(summary_dir):
-            os.makedirs(summary_dir)
-    if checkpoint_dir:
-        if not os.path.exists(checkpoint_dir):
-            os.makedirs(checkpoint_dir)
+def create_dirs(experiment_dir):
+    monitor_dir = os.path.join(experiment_dir, "monitor/")
+    checkpoint_dir = os.path.join(experiment_dir, "checkpoints/")
+    summary_dir = os.path.join(experiment_dir, "summaries/")
+    if not os.path.exists(summary_dir):
+        os.makedirs(summary_dir)
+    if not os.path.exists(checkpoint_dir):
+        os.makedirs(checkpoint_dir)
+    if not os.path.exists(monitor_dir):
+        os.makedirs(monitor_dir)

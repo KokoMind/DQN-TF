@@ -17,7 +17,7 @@ class Environment(object):
         """
         self.sess = sess
         self.__env = gym.envs.make(config.env_name)
-        self.__monitor_path = os.path.join(config.experiment_dir, "monitor")
+        self.__monitor_path = os.path.join(config.experiment_dir, "monitor/")
         self.__valid_actions = [x for x in range(self.n_actions)]
 
         if config.monitor:
