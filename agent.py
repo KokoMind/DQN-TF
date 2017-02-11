@@ -49,8 +49,8 @@ class Agent:
 
     def init_dirs(self):
         # Create directories for checkpoints and summaries
-        self.checkpoint_dir = os.path.join(self.config.checkpoint_dir, "checkpoints")
-        self.summary_dir = os.path.join(self.config.summary_dir, "summaries")
+        self.checkpoint_dir = os.path.join(self.config.experiment_dir, "checkpoints")
+        self.summary_dir = os.path.join(self.config.experiment_dir, "summaries")
 
         if not os.path.exists(self.checkpoint_dir):
             os.makedirs(self.checkpoint_dir)
@@ -142,7 +142,7 @@ class Agent:
                 action_probs = self.policy(self.sess, state, self.epsilon)
                 action = np.random.choice(np.arange(len(action_probs)), p=action_probs)
 
-                next_state, reward, done = self.environment.step(self.sess, action)
+                next_state, reward, done = self.environment.step(action)
 
                 # Save transition to replay memory
                 self.memory.push(state, next_state, action, reward, done)
