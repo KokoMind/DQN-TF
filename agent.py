@@ -32,6 +32,10 @@ class Agent:
         # Intialize the DQN graph which contain 2 Networks Target and Q
         self.estimator = DQN()
 
+        # To initialize all variables
+        self.init = tf.group(tf.global_variables_initializer(), tf.local_variables_initializer())
+        self.sess.run(self.init)
+
         if config.initial_training:
             pass
         elif config.load_checkpoint:
