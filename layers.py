@@ -10,7 +10,7 @@ def conv2d(x,
            stride,
            initializer=tf.contrib.layers.xavier_initializer(),
            activation_fn=tf.nn.relu,
-           padding='valid',
+           padding='VALID',
            name='conv2d'):
     with tf.variable_scope(name):
         stride = [1, stride[0], stride[1], 1]
