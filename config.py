@@ -39,7 +39,7 @@ class Experiment1(EnvConfig, AgentConfig, ReplayMemoryConfig, EstimatorConfig):
     update_target_estimator_every = 10000
     batch_size = 32
 
-    experiment_dir = "./expriment_1/"
+    experiment_dir = "./experiment_1/"
 
 
 def get_config():
