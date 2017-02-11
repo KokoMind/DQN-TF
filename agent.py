@@ -90,8 +90,15 @@ class Agent:
             actions[best_action] += (1.0 - epsilon)
             return actions
 
+        def greedy(sess, observation):
+            q_values = estimator.predict(sess, np.expand_dims(observation, 0))[0]
+            best_action = np.argmax(q_values)
+            return best_action
+
         if fn_type == 'epsilion_greedy':
             return epsilion_greedy
+        elif fn_type == 'greedy':
+            return greedy
         else:
             raise Exception("Please Select a proper policy function")
 
@@ -178,5 +185,18 @@ class Agent:
         pass
 
     def play(self, n_episode=10):
-        # TODO to play a number of episodes and observe
-        pass
+        self.policy = self.policy_fn('greedy', self.q_predictor, self.environment.n_actions)
+
+        for episode in range(n_episode):
+            
+            state = self.environment.reset()
+
+            for t in itertools.count():
+
+                best_action = self.policy(self.sess, state)
+                next_state, reward, done = self.environment.step(best_action)
+
+                if done:
+                    break
+
+                state = next_state
