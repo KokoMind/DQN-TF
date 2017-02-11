@@ -4,14 +4,16 @@ import tensorflow as tf
 from environment import Environment
 from agent import Agent
 from config import get_config
+from utils import create_dirs
 
 
 def main():
     # Reset the graph
     tf.reset_default_graph()
 
-    # Get the Config of the program
+    # Get the Config of the program and init the dirs
     config = get_config()
+    create_dirs(config.experiment_dir)
 
     # Create the Session of the graph
     sess = tf.Session()

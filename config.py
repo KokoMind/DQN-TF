@@ -22,7 +22,7 @@ class AgentConfig(object):
 
 class ReplayMemoryConfig(object):
     rep_max_size = 50000
-    replay_memory_init_size = 50000
+    replay_memory_init_size = 50
 
 
 class EstimatorConfig(object):
