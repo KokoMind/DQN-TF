@@ -19,7 +19,7 @@ class EstimatorConfig():
 	lala = 'lala'
 
 class Expriment1(EnvConfig, AgentConfig, ReplayMemoryConfig, EstimatorConfig):
-	experiment_dir = "./expriment"
+	experiment_dir = "./expriment/"
 
 def get_config():
 	return Expriment1

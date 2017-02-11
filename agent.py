@@ -52,8 +52,8 @@ class Agent:
 
     def init_dirs(self):
         # Create directories for checkpoints and summaries
-        self.checkpoint_dir = os.path.join(self.config.experiment_dir, "checkpoints")
-        self.summary_dir = os.path.join(self.config.experiment_dir, "summaries")
+        self.checkpoint_dir = os.path.join(self.config.experiment_dir, "checkpoints/")
+        self.summary_dir = os.path.join(self.config.experiment_dir, "summaries/")
 
         if not os.path.exists(self.checkpoint_dir):
             os.makedirs(self.checkpoint_dir)
@@ -140,12 +140,9 @@ class Agent:
                 self.summary_writer.add_summary(self.episode_summary, self.global_step_tensor.eval())
 
                 # Maybe update the target estimator
-                if self.global_step_tensor.eval() % self.config.update_target_estimator_every == 0:
+                if self.global_step_tensor.eval(self.sess) % self.config.update_target_estimator_every == 0:
                     self.update_target_estimator(self.sess, self.q_predictor, self.target_estimator)
                     print("\nCopied model parameters to target network.")
-###################### 
-###################### new policy?   #omar
-###################### 
 
                 # Take a step
                 action_probs = self.policy(self.sess, state, self.epsilon)
