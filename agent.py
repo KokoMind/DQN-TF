@@ -136,6 +136,9 @@ class Agent:
                 if self.global_step_tensor.eval() % self.config.update_target_estimator_every == 0:
                     self.update_target_estimator(self.sess, self.q_predictor, self.target_estimator)
                     print("\nCopied model parameters to target network.")
+###################### 
+###################### new policy?   #omar
+###################### 
 
                 # Take a step
                 action_probs = self.policy(self.sess, state, self.epsilon)
