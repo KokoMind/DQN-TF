@@ -48,8 +48,8 @@ class Agent:
 
     def init_dirs(self):
         # Create directories for checkpoints and summaries
-        self.checkpoint_dir = os.path.join(self.config.experiment_dir, "checkpoints")
-        self.summary_dir = os.path.join(self.config.experiment_dir, "summaries")
+        self.checkpoint_dir = os.path.join(self.config.experiment_dir, "checkpoints/")
+        self.summary_dir = os.path.join(self.config.experiment_dir, "summaries/")
 
     def init_global_step(self):
         with tf.variable_scope('step'):

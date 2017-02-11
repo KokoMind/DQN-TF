@@ -21,7 +21,7 @@ class EstimatorConfig():
 		self.name="blablabla"
 		self.learning_rate=.0002
 class Expriment1(EnvConfig, AgentConfig, ReplayMemoryConfig, EstimatorConfig):
-	experiment_dir = "./expriment"
+	experiment_dir = "./expriment/"
 
 def get_config():
 	return Expriment1
