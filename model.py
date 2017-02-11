@@ -30,7 +30,7 @@ class BaseModel(object):
         activation_fn = tf.nn.relu
 
         with tf.variable_scope('behaviour'):
-            self.b_x = tf.placeholder(tf.uint8, shape=[None] + shape, name="states")
+            self.b_x = tf.placeholder(tf.float32, shape=[None] + shape, name="states")
             self.b_conv1, self.behaviour_weights['conv1_w'], self.behaviour_weights['conv1_b'] = conv2d(self.b_x,
                                                                                                         32, [8, 8],
                                                                                                         [4, 4],
@@ -60,7 +60,7 @@ class BaseModel(object):
                                                                                                   name='b_out')
 
         with tf.variable_scope('target'):
-            self.t_x = tf.placeholder(tf.uint8, shape=[None] + shape, name="states")
+            self.t_x = tf.placeholder(tf.float32, shape=[None] + shape, name="states")
             self.t_conv1, self.target_weights['conv1_w'], self.target_weights['conv1_b'] = conv2d(self.t_x,
                                                                                                   32, [8, 8], [4, 4],
                                                                                                   initializer,
@@ -125,7 +125,7 @@ class DQN(BaseModel):
 
     def update_target_network(self):
         for name in self.behaviour_weights.keys():
-            self.sess.run(self.copy_to[name], {self.copy_from[name]: self.behaviour_weights[name].eval()})
+            self.sess.run(self.copy_to[name], {self.copy_from[name]: self.behaviour_weights[name].eval(self.sess)})
 
     def predict(self, states, type="behaviour"):
         if type == "behaviour":
