@@ -142,7 +142,7 @@ class Agent:
             for t in itertools.count():
 
                 # Update the Global step
-                self.global_step_assign_op.eval(self.sess, {self.global_step_input: self.global_step_tensor.eval(self.sess) + 1})
+                self.global_step_assign_op.eval(session=self.sess, feed_dict={self.global_step_input: self.global_step_tensor.eval(self.sess) + 1})
 
                 # time to update the target estimator
                 if self.global_step_tensor.eval(self.sess) % self.config.update_target_estimator_every == 0:
