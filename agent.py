@@ -24,7 +24,6 @@ class Agent:
         self.memory = ReplayMemory(config.state_shape, config.rep_max_size)
 
         self.init_dirs()
-        self.saver = tf.train.Saver(max_to_keep=10)
         self.summary_writer = tf.summary.FileWriter(self.summary_dir)
 
         self.init_global_step()
@@ -35,6 +34,8 @@ class Agent:
         # To initialize all variables
         self.init = tf.group(tf.global_variables_initializer(), tf.local_variables_initializer())
         self.sess.run(self.init)
+
+        self.saver = tf.train.Saver(max_to_keep=10)
 
         if config.is_train and config.initial_training:
             pass
