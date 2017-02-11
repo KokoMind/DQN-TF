@@ -21,7 +21,7 @@ class Agent:
         self.sess = sess
         self.config = config
         self.environment = environment
-        self.memory = ReplayMemory(config.state_shape, config.rep_mem_max)
+        self.memory = ReplayMemory(config.state_shape, config.rep_max_size)
 
         self.init_dirs()
         self.saver = tf.train.Saver(max_to_keep=10)

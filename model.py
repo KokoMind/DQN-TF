@@ -107,7 +107,7 @@ class DQN(BaseModel):
         self.name = config.name
         self.sess = sess
         self.num_actions = num_actions
-        self.shape = config.shape
+        self.shape = config.state_shape
         self.learning_rate = config.learning_rate
         self.build_model(num_outputs=self.num_actions, shape=self.shape)
         self.update_target_network()

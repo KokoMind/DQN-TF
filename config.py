@@ -12,20 +12,16 @@ class EnvConfig(object):
 
 
 class AgentConfig(object):
-    state_shape = None
-    rep_mem_max = None
-
     pass
 
 
 class ReplayMemoryConfig(object):
-    max_size = 500000
+    rep_max_size = 500000
 
 
 class EstimatorConfig(object):
     name = "DQN_Dragon"
     learning_rate = .0002
-    shape = [84, 84, 4]
 
 
 class Experiment1(EnvConfig, AgentConfig, ReplayMemoryConfig, EstimatorConfig):
@@ -33,6 +29,7 @@ class Experiment1(EnvConfig, AgentConfig, ReplayMemoryConfig, EstimatorConfig):
     initial_training = None
     cont_training = None
     is_play = None
+    state_shape = [84, 84, 4]
 
     experiment_dir = "./expriment_1/"
 
