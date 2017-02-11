@@ -12,6 +12,7 @@ import numpy as np
 from tqdm import tqdm
 import tensorflow as tf
 
+
 from layers import conv2d,linear
 __version__ = 0.1
 
@@ -79,7 +80,6 @@ class DQN(BaseModel):
         BaseModel.__init__(self,shape)
         self.name=name
         self.sess = sess
-        self.dir=dir
         self.num_actions=num_action_space
         self.shape=shape
         self.learning_rate=learning_rate
