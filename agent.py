@@ -25,7 +25,8 @@ class Agent:
 
         self.init_dirs()
         self.saver = tf.train.Saver()
-        self.summary_writer = tf.train.SummaryWriter(self.summary_dir)
+        self.summary_writer = tf.summary.FileWriter(self.summary_dir)
+
         self.init_global_step()
 
         # Intialize the DQN graph which contain 2 Networks Target and Q
