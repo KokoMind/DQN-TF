@@ -1,5 +1,5 @@
 *.pyc
 .idea/*
-expriment/*
+expriment_1/*
 .ipynb_checkpoints/*
 .DS_Store
