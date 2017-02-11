@@ -92,10 +92,10 @@ class BaseModel(object):
                                                       name=name)
                 self.copy_to[name] = self.target_weights[name].assign(self.copy_from[name])
 
-    def predict(self, sess, state):
+    def predict(self, state, type):
         raise NotImplemented()
 
-    def update(self, sess, state, action, y):
+    def update(self, s, a, y):
         raise NotImplemented()
 
 
