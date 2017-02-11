@@ -13,16 +13,16 @@ class EnvConfig(object):
 
 
 class AgentConfig(object):
-    initial_epsilon = None
-    final_epsilon = None
-    exploration_steps = None
-    policy_fn = None
-    discount_factor = None
+    initial_epsilon = 1.0
+    final_epsilon = 0.1
+    exploration_steps = 500000
+    policy_fn = 'epsilon_greedy'
+    discount_factor = 0.99
 
 
 class ReplayMemoryConfig(object):
     rep_max_size = 500000
-    replay_memory_init_size = None
+    replay_memory_init_size = 50000
 
 
 class EstimatorConfig(object):
@@ -31,13 +31,13 @@ class EstimatorConfig(object):
 
 
 class Experiment1(EnvConfig, AgentConfig, ReplayMemoryConfig, EstimatorConfig):
-    is_train = None
-    initial_training = None
-    cont_training = None
-    is_play = None
-    num_episodes = None
-    update_target_estimator_every = None
-    batch_size = None
+    is_train = True
+    initial_training = True
+    cont_training = False
+    is_play = False
+    num_episodes = 10000
+    update_target_estimator_every = 10000
+    batch_size = 32
 
     experiment_dir = "./expriment_1/"
 
