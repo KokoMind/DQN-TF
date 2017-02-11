@@ -54,7 +54,7 @@ class BaseModel(object):
             self.t_conv3_flat = tf.contrib.layers.flatten(self.conv3)
             self.t_fc1, self.target_weights['fc1_w'], self.target_weights['fc1_b'] = linear(self.conv3_flat, 512, activation_fn=activation_fn,
                                                                                           name='l4')
-            self.out, self.target_weights['out_w'], self.target_weights['out_b'] = linear(self.fc1, num_outputs, name='q')
+            self.t_out, self.target_weights['out_w'], self.target_weights['out_b'] = linear(self.fc1, num_outputs, name='q')
 
         with tf.variable_scope('copy'):
             self.copy_from = {}
