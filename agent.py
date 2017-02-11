@@ -24,7 +24,7 @@ class Agent:
         self.memory = ReplayMemory(config.state_shape, config.rep_mem_max)
 
         self.init_dirs()
-        self.saver = tf.train.Saver()
+        self.saver = tf.train.Saver(max_to_keep=10)
         self.summary_writer = tf.summary.FileWriter(self.summary_dir)
 
         self.init_global_step()
@@ -151,7 +151,8 @@ class Agent:
 
                 # Calculate targets Then Compute the loss
                 q_values_next = self.estimator.predict(next_state_batch, type="target")
-                targets_batch = reward_batch + np.invert(done_batch).astype(np.float32) * self.config.discount_factor * np.amax(q_values_next, axis=1)
+                targets_batch = reward_batch + np.invert(done_batch).astype(np.float32) * self.config.discount_factor * np.amax(
+                    q_values_next, axis=1)
                 loss = self.estimator.update(state_batch, action_batch, targets_batch)
 
                 # Update statistics
