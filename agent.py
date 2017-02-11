@@ -44,7 +44,7 @@ class Agent:
             self.saver.restore(self.sess, latest_checkpoint)
 
     def save(self):
-        self.saver.save(self.sess, self.checkpoint_dir)
+        self.saver.save(self.sess, self.checkpoint_dir, self.global_step_tensor)
 
     def init_dirs(self):
         # Create directories for checkpoints and summaries
