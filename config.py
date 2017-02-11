@@ -1,25 +1,24 @@
 """This file is to put any configuration to our classes"""
 
-class Configurations(object):
-	"""docstring for configuration"""
-	def __init__(self):
-		self.experiment_dir = "./expriment"
+class EnvConfig():
+	env_name = 'Breakout-v0'
+	state_processor_params = { "resize_shape": (84, 84),
+						"crop_box": (34, 0, 160, 160),
+						"gray": True,
+						"frames_num": 4 }
+	record_video_every = 10
 
-		#Environment config
-		self.env_name = 'Breakout-v0'
-		self.state_processor_params = { "resize_shape": (84, 84),
-										"crop_box": (34, 0, 160, 160),
-										"gray": True,
-										"frames_num": 4 }
-		self.record_video_every = 10
+class AgentConfig():
+	bla = 'bla'
 
+class ReplayMemoryConfig():
+	blala = 'blala'
 
-		#Agent config
+class EstimatorConfig():
+	lala = 'lala'
 
+class Expriment1(EnvConfig, AgentConfig, ReplayMemoryConfig, EstimatorConfig):
+	experiment_dir = "./expriment"
 
-
-		#Replay_Memory config
-
-
-
-		#Estimator config		
+def get_config():
+	return Expriment1
