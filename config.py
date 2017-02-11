@@ -20,7 +20,7 @@ class ReplayMemoryConfig(object):
 
 
 class EstimatorConfig(object):
-    name = "blablabla"
+    name = "DQN_Dragon"
     learning_rate = .0002
     num_action_space = 6
     shape = [84, 84, 4]
