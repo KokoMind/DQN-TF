@@ -36,12 +36,14 @@ class Agent:
         self.init = tf.group(tf.global_variables_initializer(), tf.local_variables_initializer())
         self.sess.run(self.init)
 
-        if config.initial_training:
+        if config.is_train and config.initial_training:
             pass
-        elif config.load_checkpoint:
+        elif config.is_train and config.cont_training:
+            self.load()
+        elif config.is_play:
             self.load()
         else:
-            raise Exception("Please Set the mode of the training if initial or loading a checkpoint")
+            raise Exception("Please Set proper mode for training or playing")
 
     def load(self):
         latest_checkpoint = tf.train.latest_checkpoint(self.checkpoint_dir)
