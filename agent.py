@@ -100,7 +100,7 @@ class Agent:
     def observe(self):
         pass
 
-    def update_target_network(self, sess, q, target):
+    def update_target_network(self):
         self.estimator.update_target_network()
 
     def train_episodic(self):
