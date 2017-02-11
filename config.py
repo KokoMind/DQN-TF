@@ -22,12 +22,9 @@ class ReplayMemoryConfig():
 class EstimatorConfig():
     name = "blablabla"
     learning_rate = .0002
-<<<<<<< HEAD
-    num_action_space=4
-    shape=[84,84,4]
-=======
+    num_action_space = 4
+    shape = [84, 84, 4]
 
->>>>>>> bc5b255030abc7ddfcf4d5c39774aee97293af92
 
 class Expriment1(EnvConfig, AgentConfig, ReplayMemoryConfig, EstimatorConfig):
     experiment_dir = "./expriment/"

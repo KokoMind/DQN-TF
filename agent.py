@@ -147,12 +147,14 @@ class Agent:
                 next_state, reward, done = self.observe_and_save(state, self.environment.valid_actions[action])
 
                 # Sample a minibatch from the replay memory
-                state_batch, next_state_batch, action_batch, reward_batch, done_batch = self.memory.get_batch(self.config.batch_size)
+                state_batch, next_state_batch, action_batch, reward_batch, done_batch = self.memory.get_batch(
+                    self.config.batch_size)
 
                 # Calculate targets Then Compute the loss
                 q_values_next = self.estimator.predict(next_state_batch, type="target")
 
-                targets_batch = reward_batch + np.invert(done_batch).astype(np.float32) * self.config.discount_factor * np.amax(q_values_next, axis=1)
+                targets_batch = reward_batch + np.invert(done_batch).astype(
+                    np.float32) * self.config.discount_factor * np.amax(q_values_next, axis=1)
                 _ = self.estimator.update(state_batch, action_batch, targets_batch)
 
                 # Update statistics
