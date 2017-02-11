@@ -105,12 +105,10 @@ class DQN(BaseModel):
         elif type=="target":
             return self.sess.run(self.t_out, { self.t_x: states})
 
-    def update(self, sess, s, a, y):
 
+    def update(self, s, a, y):
         feed_dict = {self.b_x: s, self.targets: y, self.actions: a}
-        _,loss = sess.run(
+        _,loss = self.sess.run(
             [self.update_step, self.loss],
             feed_dict)
         return loss
-
-
