@@ -10,7 +10,6 @@ import itertools
 from model import DQN
 from experience_replay import ReplayMemory
 
-__author__ = "Mo'men"
 __version__ = 0.1
 
 
@@ -65,16 +64,15 @@ class Agent:
 
         state = self.environment.reset()
         for i in range(self.config.replay_memory_init_size):
-            action_probs = self.policy(self.sess, state, self.epsilon)
-            action = np.random.choice(np.arange(len(action_probs)), p=action_probs)
-            next_state, reward, done = self.environment.step(self.sess, self.environment.valid_actions[action])
-            self.memory.push(state, next_state, action, reward, done)
+            action = self.take_action(state)
+            next_state, reward, done = self.observe_and_save(state, self.environment.valid_actions[action])
             if done:
                 state = self.environment.reset()
             else:
                 state = next_state
 
     def policy_fn(self, fn_type, estimator, n_actions):
+        """Function that contain definitions to various number of policy functions and choose between them"""
 
         def epsilion_greedy(sess, observation, epsilon):
             actions = np.ones(n_actions, dtype=float) * epsilon / n_actions
@@ -95,13 +93,24 @@ class Agent:
         else:
             raise Exception("Please Select a proper policy function")
 
-    def observe(self):
-        pass
+    def take_action(self, state):
+        """Take the action based on the policy function"""
+        action_probs = self.policy(self.sess, state, self.epsilon)
+        action = np.random.choice(np.arange(len(action_probs)), p=action_probs)
+        return action
+
+    def observe_and_save(self, state, action):
+        """Function that observe the new state , reward and save it in the memory"""
+        next_state, reward, done = self.environment.step(action)
+        self.memory.push(state, next_state, action, reward, done)
+        return next_state, reward, done
 
     def update_target_network(self):
+        """Update Target network By copying paramter between the two networks in DQN"""
         self.estimator.update_target_network()
 
     def train_episodic(self):
+        """Train the agent in episodic techniques"""
 
         self.epsilon = self.config.initial_epsilion
         self.epsilon_step = (self.config.initial_epsilion - self.config.final_epsilion) / self.config.exploration_steps
@@ -131,19 +140,13 @@ class Agent:
                 self.episode_summary.value.add(simple_value=self.epsilon, tag="epsilon")
                 self.summary_writer.add_summary(self.episode_summary, self.global_step_tensor.eval())
 
-                # Maybe update the target estimator
+                # time to update the target estimator
                 if self.global_step_tensor.eval() % self.config.update_target_estimator_every == 0:
                     self.update_target_network()
-                    print("\nCopied model parameters to target network.")
 
-                # Take a step
-                action_probs = self.policy(self.sess, state, self.epsilon)
-                action = np.random.choice(np.arange(len(action_probs)), p=action_probs)
-
-                next_state, reward, done = self.environment.step(action)
-
-                # Save transition to replay memory
-                self.memory.push(state, next_state, action, reward, done)
+                # Take an action ..Then observe and save
+                action = self.take_action(state)
+                next_state, reward, done = self.observe_and_save(state, self.environment.valid_actions[action])
 
                 # Update statistics
 
@@ -174,6 +177,7 @@ class Agent:
         pass
 
     def play(self, n_episode=10):
+        """Function that play greedily on the policy learnt"""
         self.policy = self.policy_fn('greedy', self.estimator, self.environment.n_actions)
 
         for episode in range(n_episode):
