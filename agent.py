@@ -65,11 +65,14 @@ class Agent:
         print("initializing replay memory...")
 
         state = self.environment.reset()
-        for i in range(self.config.replay_memory_init_size):
+        for i in itertools.count():
             action = self.take_action(state)
             next_state, reward, done = self.observe_and_save(state, self.environment.valid_actions[action])
             if done:
-                state = self.environment.reset()
+                if i >= self.config.replay_memory_init_size:
+                    break
+                else:
+                    state = self.environment.reset()
             else:
                 state = next_state
 
