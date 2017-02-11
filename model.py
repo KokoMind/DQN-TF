@@ -38,8 +38,9 @@ class BaseModel(object):
                                         64, [3, 3], [1, 1], initializer, activation_fn, name='conv3')
             self.b_conv3_flat=tf.contrib.layers.flatten(self.conv3)
 
-            self.b_fc1, self.behaviour_weights['fc1_w'], self.behaviour_weights['fc1_b'] = linear(self.conv3_flat, 512, activation_fn=activation_fn, name='l4')
-            self.b_out, self.behaviour_weights['out_w'], self.behaviour_weights['out_b'] = linear(self.fc1, num_outputs, name='q')
+            self.b_fc1, self.behaviour_weights['fc1_w'], self.behaviour_weights['fc1_b'] = linear(self.conv3_flat, 512,
+                                                                                    activation_fn=activation_fn, name='b_fc1')
+            self.b_out, self.behaviour_weights['out_w'], self.behaviour_weights['out_b'] = linear(self.fc1, num_outputs, name='b_out')
 
         with tf.variable_scope('target'):
             self.t_x = tf.placeholder(tf.uint8, shape=[None] + shape, name="states")
@@ -53,8 +54,8 @@ class BaseModel(object):
                                                                       name='conv3')
             self.t_conv3_flat = tf.contrib.layers.flatten(self.conv3)
             self.t_fc1, self.target_weights['fc1_w'], self.target_weights['fc1_b'] = linear(self.conv3_flat, 512, activation_fn=activation_fn,
-                                                                                          name='l4')
-            self.t_out, self.target_weights['out_w'], self.target_weights['out_b'] = linear(self.fc1, num_outputs, name='q')
+                                                                                          name='t_fc1')
+            self.t_out, self.target_weights['out_w'], self.target_weights['out_b'] = linear(self.fc1, num_outputs, name='t_out')
 
         with tf.variable_scope('copy'):
             self.copy_from = {}
