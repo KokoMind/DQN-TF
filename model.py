@@ -62,7 +62,7 @@ class BaseModel(object):
 
             for name in self.behaviour_weights.keys():
                 self.copy_from[name] = tf.placeholder('float32', self.target_weights[name].get_shape().as_list(), name=name)
-                self.copy_to[name] = self.target_weights[name].assign(self.t_w_input[name])
+                self.copy_to[name] = self.target_weights[name].assign(self.copy_from[name])
 
     def predict(self, sess, state):
         raise NotImplemented()
