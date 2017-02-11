@@ -42,10 +42,13 @@ class Agent:
             raise Exception("Please Set the mode of the training if initial or loading a checkpoint")
 
     def load(self):
-        pass
+        latest_checkpoint = tf.train.latest_checkpoint(self.checkpoint_dir)
+        if latest_checkpoint:
+            print("Loading model checkpoint {}...\n".format(latest_checkpoint))
+            self.saver.restore(self.sess, latest_checkpoint)
 
     def save(self):
-        pass
+        self.saver.save(self.sess, self.checkpoint_dit)
 
     def init_dirs(self):
         # Create directories for checkpoints and summaries
@@ -57,21 +60,17 @@ class Agent:
         if not os.path.exists(self.summary_dir):
             os.makedirs(self.summary_dir)
 
-        pass
-
     def init_global_step(self):
         with tf.variable_scope('step'):
             self.global_step_tensor = tf.Variable(0, trainable=False, name='global_step')
             self.global_step_input = tf.placeholder('int32', None, name='global_step_input')
             self.global_step_assign_op = self.global_step_tensor.assign(self.global_step_input)
-        pass
 
     def init_replay_memory(self):
         # Populate the replay memory with initial experience
         print("initializing replay memory...")
 
         state = self.environment.reset()
-
         for i in range(self.config.replay_memory_init_size):
             action_probs = self.policy(self.sess, state, self.epsilon)
             action = np.random.choice(np.arange(len(action_probs)), p=action_probs)
