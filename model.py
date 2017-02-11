@@ -125,7 +125,7 @@ class DQN(BaseModel):
 
     def update_target_network(self):
         for name in self.behaviour_weights.keys():
-            self.copy_to[name].eval({self.copy_from[name]: self.behaviour_weights[name].eval()})
+            self.sess.run(self.copy_to[name], {self.copy_from[name]: self.behaviour_weights[name].eval()})
 
     def predict(self, states, type="behaviour"):
         if type == "behaviour":
