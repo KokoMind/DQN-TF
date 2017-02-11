@@ -13,8 +13,10 @@ from experience_replay import ReplayMemory
 __author__ = "Mo'men"
 __version__ = 0.1
 
+
 class Agent:
     """Our Wasted Agent :P """
+
     def __init__(self, sess, config, environment):
         # Get the session, config, environment, and create a replaymemory
         self.sess = sess
@@ -76,7 +78,7 @@ class Agent:
 
         def epsilion_greedy(sess, observation, epsilon):
             actions = np.ones(n_actions, dtype=float) * epsilon / n_actions
-            q_values = estimator.predict( np.expand_dims(observation, 0))[0]
+            q_values = estimator.predict(np.expand_dims(observation, 0))[0]
             best_action = np.argmax(q_values)
             actions[best_action] += (1.0 - epsilon)
             return actions
@@ -149,7 +151,7 @@ class Agent:
                 state_batch, next_state_batch, action_batch, reward_batch, done_batch = self.memory.get_batch(self.config.batch_size)
 
                 # Calculate q values and targets
-                q_values_next = self.estimator.predict(next_state_batch,type="target" ) # specify network type you want to use # gemy
+                q_values_next = self.estimator.predict(next_state_batch, type="target")  # specify network type you want to use # gemy
                 targets_batch = reward_batch + np.invert(done_batch).astype(np.float32) * self.config.discount_factor * np.amax(q_values_next, axis=1)
 
                 # Perform gradient descent update
@@ -175,7 +177,7 @@ class Agent:
         self.policy = self.policy_fn('greedy', self.estimator, self.environment.n_actions)
 
         for episode in range(n_episode):
-            
+
             state = self.environment.reset()
 
             for t in itertools.count():
