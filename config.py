@@ -21,10 +21,10 @@ class ReplayMemoryConfig():
 
 
 class EstimatorConfig():
-    def __init__(self):
-        self.name = "blablabla"
-        self.learning_rate = .0002
-
+    name = "blablabla"
+    learning_rate = .0002
+    num_action_space=4
+    shape=[84,84,4]
 
 class Expriment1(EnvConfig, AgentConfig, ReplayMemoryConfig, EstimatorConfig):
     experiment_dir = "./expriment/"

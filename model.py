@@ -74,14 +74,14 @@ class BaseModel(object):
 
 class DQN(BaseModel):
     """   Our Estimator Network   """
-    def __init__(self,name="blablabla",sess=None,shape=None,num_action_space=None,learning_rate=.0002):
+    def __init__(self,sess=None,config=None):
         BaseModel.__init__(self)
-        self.name=name
+        self.name=config.name
         self.sess = sess
-        self.num_actions=num_action_space
-        self.shape=shape
-        self.learning_rate=learning_rate
-        self.build_model(num_outputs=num_action_space,shape=shape,name=name)
+        self.num_actions=config.num_action_space
+        self.shape=config.shape
+        self.learning_rate=config.learning_rate
+        self.build_model(num_outputs=self.num_actions,shape=self.shape,name=self.name)
         self.update_target_network()
         with tf.variable_scope("DQN"):
             #placeholders
