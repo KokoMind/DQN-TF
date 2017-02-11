@@ -75,7 +75,7 @@ class BaseModel(object):
 class DQN(BaseModel):
     """   Our Estimator Network   """
     def __init__(self,name="blablabla",sess=None,shape=None,num_action_space=None,learning_rate=.0002):
-        BaseModel.__init__(self,shape)
+        BaseModel.__init__(self)
         self.name=name
         self.sess = sess
         self.num_actions=num_action_space
