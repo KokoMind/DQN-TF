@@ -29,7 +29,7 @@ class BaseModel(object):
         activation_fn = tf.nn.relu
 
         with tf.variable_scope('behaviour'):
-            self.x = tf.placeholder(tf.uint8, shape=[None] + shape, name="states")
+            self.b_x = tf.placeholder(tf.uint8, shape=[None] + shape, name="states")
             self.b_conv1, self.behaviour_weights['conv1_w'], self.behaviour_weights['conv1_b'] = conv2d(self.x,
                                         32, [8, 8], [4, 4], initializer, activation_fn, name='conv1')
             self.b_conv2, self.behaviour_weights['conv2_w'], self.behaviour_weights['conv2_b'] = conv2d(self.conv1,
@@ -42,7 +42,7 @@ class BaseModel(object):
             self.b_out, self.behaviour_weights['out_w'], self.behaviour_weights['out_b'] = linear(self.fc1, num_outputs, name='q')
 
         with tf.variable_scope('target'):
-            self.x = tf.placeholder(tf.uint8, shape=[None] + shape, name="states")
+            self.t_x = tf.placeholder(tf.uint8, shape=[None] + shape, name="states")
             self.t_conv1, self.target_weights['conv1_w'], self.target_weights['conv1_b'] = conv2d(self.x,
                                                                       32, [8, 8], [4, 4], initializer, activation_fn, name='conv1')
             self.t_conv2, self.target_weights['conv2_w'], self.target_weights['conv2_b'] = conv2d(self.conv1,
@@ -83,8 +83,7 @@ class DQN(BaseModel):
         self.shape=shape
         self.learning_rate=learning_rate
         self.saver = tf.train.Saver()
-        self.summary_dir = os.path.join(self.summary_dir, self.name)
-        self.summary_writer = tf.train.SummaryWriter(self.summary_dir, self.sess.graph_def)
+
         with tf.variable_scope("DQN"):
             #placeholders
             self.actions = tf.placeholder(tf.float32, shape=[None])
@@ -98,9 +97,23 @@ class DQN(BaseModel):
             self.optimizer = tf.train.RMSPropOptimizer(self.learning_rate, 0.99, 0.0, 1e-6)
             self.update_step = self.optimizer.minimize(self.loss)
 
-    def update_target_q_network(self):
+    def update_target_network(self):
         for name in self.behaviour_weights.keys():
             self.copy_to[name].eval({self.copy_from[name]: self.behaviour_weights[name].eval()})
 
+    def predict(self, state,type="behaviour"):
+
+        if type=="behaviour":
+            return self.sess.run(self.b_out, { self.b_x: state })
+        elif type=="target":
+            return self.sess.run(self.t_out, { self.t_x: state })
+
+    def update(self, sess, s, a, y):
+
+        feed_dict = {self.b_x: s, self.targets: y, self.actions: a}
+        _,loss = sess.run(
+            [self.update_step, self.loss],
+            feed_dict)
+        return loss
 
 
