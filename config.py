@@ -13,11 +13,13 @@ class AgentConfig():
 	bla = 'bla'
 
 class ReplayMemoryConfig():
-	blala = 'blala'
+	def __init__(self):
+		self.max_size=500000
 
 class EstimatorConfig():
-	lala = 'lala'
-
+	def __init__(self):
+		self.name="blablabla"
+		self.learning_rate=.0002
 class Expriment1(EnvConfig, AgentConfig, ReplayMemoryConfig, EstimatorConfig):
 	experiment_dir = "./expriment/"
 

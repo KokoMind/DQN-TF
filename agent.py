@@ -7,16 +7,14 @@ from tqdm import tqdm
 import tensorflow as tf
 import itertools
 
-from model import Estimator
+from model import DQN
 from experience_replay import ReplayMemory
 
 __author__ = "Mo'men"
 __version__ = 0.1
 
-
 class Agent:
     """Our Wasted Agent :P """
-
     def __init__(self, sess, config, environment):
         self.sess = sess
         self.config = config
@@ -24,10 +22,7 @@ class Agent:
         self.memory = ReplayMemory(config.state_shape, config.rep_mem_max)
 
         self.init_dirs()
-
-        self.q_predictor = Estimator()
-        self.target_estimator = Estimator()
-
+        self.estimator = DQN()  ## make one object have the 2 networks # gemy
         self.saver = tf.train.Saver()
 
         self.summary_writer = tf.train.SummaryWriter(self.summary_dir)
@@ -85,13 +80,13 @@ class Agent:
 
         def epsilion_greedy(sess, observation, epsilon):
             actions = np.ones(n_actions, dtype=float) * epsilon / n_actions
-            q_values = estimator.predict(sess, np.expand_dims(observation, 0))[0]
+            q_values = estimator.predict( np.expand_dims(observation, 0))[0]
             best_action = np.argmax(q_values)
             actions[best_action] += (1.0 - epsilon)
             return actions
 
         def greedy(sess, observation):
-            q_values = estimator.predict(sess, np.expand_dims(observation, 0))[0]
+            q_values = estimator.predict(np.expand_dims(observation, 0))[0]
             best_action = np.argmax(q_values)
             return best_action
 
@@ -105,15 +100,14 @@ class Agent:
     def observe(self):
         pass
 
-    def update_target_estimator(self, sess, q, target):
-        # TODO copy paramters from q to target
-        pass
+    def update_target_network(self):
+        self.estimator.update_target_network()
 
     def train_episodic(self):
 
         self.epsilon = self.config.initial_epsilion
         self.epsilon_step = (self.config.initial_epsilion - self.config.final_epsilion) / self.config.exploration_steps
-        self.policy = self.policy_fn(self.config.policy_fn, self.q_predictor, self.environment.n_actions)
+        self.policy = self.policy_fn(self.config.policy_fn, self.estimator, self.environment.n_actions)
 
         self.init_replay_memory()
 
@@ -140,8 +134,8 @@ class Agent:
                 self.summary_writer.add_summary(self.episode_summary, self.global_step_tensor.eval())
 
                 # Maybe update the target estimator
-                if self.global_step_tensor.eval(self.sess) % self.config.update_target_estimator_every == 0:
-                    self.update_target_estimator(self.sess, self.q_predictor, self.target_estimator)
+                if self.global_step_tensor.eval() % self.config.update_target_estimator_every == 0:
+                    self.update_target_network()
                     print("\nCopied model parameters to target network.")
 
                 # Take a step
@@ -159,11 +153,11 @@ class Agent:
                 state_batch, next_state_batch, action_batch, reward_batch, done_batch = self.memory.get_batch(self.config.batch_size)
 
                 # Calculate q values and targets
-                q_values_next = self.target_estimator.predict(self.sess, next_state_batch)
+                q_values_next = self.estimator.predict(next_state_batch,type="target" ) # specify network type you want to use # gemy
                 targets_batch = reward_batch + np.invert(done_batch).astype(np.float32) * self.config.discount_factor * np.amax(q_values_next, axis=1)
 
                 # Perform gradient descent update
-                loss = self.q_predictor.update(self.sess, state_batch, action_batch, targets_batch)
+                loss = self.estimator.update(state_batch, action_batch, targets_batch)
 
                 if done:  # IF terminal state so exit the episode
                     break
@@ -182,7 +176,7 @@ class Agent:
         pass
 
     def play(self, n_episode=10):
-        self.policy = self.policy_fn('greedy', self.q_predictor, self.environment.n_actions)
+        self.policy = self.policy_fn('greedy', self.estimator, self.environment.n_actions)
 
         for episode in range(n_episode):
             
