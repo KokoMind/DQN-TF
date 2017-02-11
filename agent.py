@@ -85,7 +85,7 @@ class Agent:
     def policy_fn(self, fn_type, estimator, n_actions):
         """Function that contain definitions to various number of policy functions and choose between them"""
 
-        def epsilion_greedy(sess, observation, epsilon):
+        def epsilon_greedy(sess, observation, epsilon):
             actions = np.ones(n_actions, dtype=float) * epsilon / n_actions
             q_values = estimator.predict(np.expand_dims(observation, 0))[0]
             best_action = np.argmax(q_values)
@@ -97,8 +97,8 @@ class Agent:
             best_action = np.argmax(q_values)
             return best_action
 
-        if fn_type == 'epsilion_greedy':
-            return epsilion_greedy
+        if fn_type == 'epsilon_greedy':
+            return epsilon_greedy
         elif fn_type == 'greedy':
             return greedy
         else:
@@ -124,8 +124,8 @@ class Agent:
         """Train the agent in episodic techniques"""
 
         # Initialize the epsilon, it's step, the policy function, the replay memory
-        self.epsilon = self.config.initial_epsilion
-        self.epsilon_step = (self.config.initial_epsilion - self.config.final_epsilion) / self.config.exploration_steps
+        self.epsilon = self.config.initial_epsilon
+        self.epsilon_step = (self.config.initial_epsilon - self.config.final_epsilon) / self.config.exploration_steps
         self.policy = self.policy_fn(self.config.policy_fn, self.estimator, self.environment.n_actions)
         self.init_replay_memory()
 
@@ -149,7 +149,7 @@ class Agent:
 
                 # Calculate the Epsilon for this time step
                 # Take an action ..Then observe and save
-                self.epsilon = min(self.config.final_epsilion, self.epsilon - self.epsilon_step)
+                self.epsilon = min(self.config.final_epsilon, self.epsilon - self.epsilon_step)
                 action = self.take_action(state)
                 next_state, reward, done = self.observe_and_save(state, self.environment.valid_actions[action])
 
