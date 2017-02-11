@@ -16,6 +16,7 @@ __version__ = 0.1
 class Agent:
     """Our Wasted Agent :P """
     def __init__(self, sess, config, environment):
+        # Get the session, config, environment, and create a replaymemory
         self.sess = sess
         self.config = config
         self.environment = environment
@@ -49,11 +50,6 @@ class Agent:
         # Create directories for checkpoints and summaries
         self.checkpoint_dir = os.path.join(self.config.experiment_dir, "checkpoints")
         self.summary_dir = os.path.join(self.config.experiment_dir, "summaries")
-
-        if not os.path.exists(self.checkpoint_dir):
-            os.makedirs(self.checkpoint_dir)
-        if not os.path.exists(self.summary_dir):
-            os.makedirs(self.summary_dir)
 
     def init_global_step(self):
         with tf.variable_scope('step'):
@@ -137,9 +133,6 @@ class Agent:
                 if self.global_step_tensor.eval() % self.config.update_target_estimator_every == 0:
                     self.update_target_network()
                     print("\nCopied model parameters to target network.")
-###################### 
-###################### new policy?   #omar
-###################### 
 
                 # Take a step
                 action_probs = self.policy(self.sess, state, self.epsilon)
