@@ -129,12 +129,13 @@ class Agent:
             self.save()
 
             state = self.environment.reset()
+            total_reward = 0
 
             # Take steps in the environment untill terminal state of epsiode
             for t in itertools.count():
 
                 # Update the Global step
-                self.global_step_assign_op.eval({self.global_step_input: self.global_step_tensor.eval() + 1})
+                self.global_step_assign_op.eval({self.global_step_input: self.global_step_tensor.eval(self.sess) + 1})
 
                 # time to update the target estimator
                 if self.global_step_tensor.eval() % self.config.update_target_estimator_every == 0:
@@ -157,15 +158,15 @@ class Agent:
                     np.float32) * self.config.discount_factor * np.amax(q_values_next, axis=1)
                 _ = self.estimator.update(state_batch, action_batch, targets_batch)
 
-                # Update statistics
-                # Add summaries to tensorboard
-                # TODO add summaries to tensorboard
-                # What we will do ya gama3a ?????
-                # if Done
-                # add reward
-                # add length
+                total_reward += reward
 
                 if done:  # IF terminal state so exit the episode
+                    # Add summaries to tensorboard
+                    episode_summary = tf.Summary()
+                    episode_summary.value.add(total_reward, node_name="episode_reward", tag="episode_reward")
+                    episode_summary.value.add(t, node_name="episode_length", tag="episode_length")
+                    self.summary_writer.add_summary(episode_summary, self.global_step_tensor.eval(self.sess))
+                    self.summary_writer.flush()
                     break
 
                 state = next_state
