@@ -48,7 +48,7 @@ class Agent:
             self.saver.restore(self.sess, latest_checkpoint)
 
     def save(self):
-        self.saver.save(self.sess, self.checkpoint_dit)
+        self.saver.save(self.sess, self.checkpoint_dir)
 
     def init_dirs(self):
         # Create directories for checkpoints and summaries
@@ -113,12 +113,12 @@ class Agent:
         for cur_episode in range(self.config.num_episodes):
 
             # Save the current checkpoint
-            self.saver.save(tf.get_default_session(), self.checkpoint_dir)
+            self.save()
 
             # Reset the environment
             state = self.environment.reset()
 
-            loss = None
+            loss = 0
 
             # One step in the environment
             for t in itertools.count():
