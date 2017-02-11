@@ -1,6 +1,7 @@
 """This file is to put any helping functions"""
 
 import time
+import os
 
 
 def timeit(f):
@@ -14,3 +15,13 @@ def timeit(f):
         return result
 
     return timed
+
+
+
+def create_dirs(summary_dir,checkpoint_dir):
+    if summary_dir:
+        if not os.path.exists(summary_dir):
+            os.makedirs(summary_dir)
+    if checkpoint_dir:
+        if not os.path.exists(checkpoint_dir):
+            os.makedirs(checkpoint_dir)

@@ -4,7 +4,15 @@ import random
 import numpy as np
 from tqdm import tqdm
 import tensorflow as tf
+import utils
+import os
+import time
+import random
+import numpy as np
+from tqdm import tqdm
+import tensorflow as tf
 
+from layers import conv2d,linear
 __version__ = 0.1
 
 
@@ -14,8 +22,47 @@ class BaseModel(object):
     def __init__(self):
         pass
 
-    def build_model(self):
-        raise NotImplemented()
+    def build_model(self,name,trainable,num_outputs,shape):
+        self.behaviour_weights = {}
+        self.target_weights = {}
+        initializer = tf.truncated_normal_initializer(0, 0.02)
+        activation_fn = tf.nn.relu
+
+        with tf.variable_scope('behaviour'):
+            self.x = tf.placeholder(tf.uint8, shape=[None] + shape, name="states")
+            self.conv1, self.behaviour_weights['conv1_w'], self.behaviour_weights['conv1_b'] = conv2d(self.x,
+                                        32, [8, 8], [4, 4], initializer, activation_fn, name='conv1')
+            self.conv2, self.behaviour_weights['conv2_w'], self.behaviour_weights['conv2_b'] = conv2d(self.conv1,
+                                        64, [4, 4], [2, 2], initializer, activation_fn, name='conv2')
+            self.conv3, self.behaviour_weights['conv3_w'], self.behaviour_weights['conv3_b'] = conv2d(self.conv2,
+                                        64, [3, 3], [1, 1], initializer, activation_fn, name='conv3')
+            self.conv3_flat=tf.contrib.layers.flatten(self.conv3)
+
+            self.fc1, self.behaviour_weights['fc1_w'], self.behaviour_weights['fc1_b'] = linear(self.conv3_flat, 512, activation_fn=activation_fn, name='l4')
+            self.out, self.behaviour_weights['out_w'], self.behaviour_weights['out_b'] = linear(self.fc1, num_outputs, name='q')
+
+        with tf.variable_scope('target'):
+            self.x = tf.placeholder(tf.uint8, shape=[None] + shape, name="states")
+            self.conv1, self.target_weights['conv1_w'], self.target_weights['conv1_b'] = conv2d(self.x,
+                                                                      32, [8, 8], [4, 4], initializer, activation_fn, name='conv1')
+            self.conv2, self.target_weights['conv2_w'], self.target_weights['conv2_b'] = conv2d(self.conv1,
+                                                                      64, [4, 4], [2, 2], initializer, activation_fn,
+                                                                      name='conv2')
+            self.conv3, self.target_weights['conv3_w'], self.target_weights['conv3_b'] = conv2d(self.conv2,
+                                                                      64, [3, 3], [1, 1], initializer, activation_fn,
+                                                                      name='conv3')
+            self.conv3_flat = tf.contrib.layers.flatten(self.conv3)
+            self.fc1, self.target_weights['fc1_w'], self.target_weights['fc1_b'] = linear(self.conv3_flat, 512, activation_fn=activation_fn,
+                                                                                          name='l4')
+            self.out, self.target_weights['out_w'], self.target_weights['out_b'] = linear(self.fc1, num_outputs, name='q')
+
+        with tf.variable_scope('copy'):
+            self.copy_from = {}
+            self.copy_to = {}
+
+            for name in self.behaviour_weights.keys():
+                self.copy_from[name] = tf.placeholder('float32', self.target_weights[name].get_shape().as_list(), name=name)
+                self.copy_to[name] = self.target_weights[name].assign(self.t_w_input[name])
 
     def predict(self, sess, state):
         raise NotImplemented()
@@ -24,9 +71,48 @@ class BaseModel(object):
         raise NotImplemented()
 
 
-class Estimator(BaseModel):
+class DQN(BaseModel):
     """Our Estimator Network"""
 
-    def __init__(self):
-        BaseModel.__init__(self)
-        pass
+    def __init__(self,name="blablabla",sess=None,shape=None,num_action_space=None,dir="./",save_model_every=10000,
+                 restore=True,update_target_every=50000,learning_rate=.0002):
+        BaseModel.__init__(self,shape)
+        self.name=name
+        self.sess = tf.Session()
+        self.dir=dir
+        self.save_model_every=save_model_every
+        self.update_target_every=update_target_every
+        self.num_actions=num_action_space
+        self.shape=shape
+        self.learning_rate=learning_rate
+        self.summary_dir=os.path.join(self.dir, "summary")
+        self.checkpoint_dir=os.path.join(self.dir, "checkpoint")
+        self.saver = tf.train.Saver()
+        self.summary_dir = os.path.join(self.summary_dir, self.name)
+        self.summary_writer = tf.train.SummaryWriter(self.summary_dir, self.sess.graph_def)
+        self.latest_checkpoint = tf.train.latest_checkpoint(self.checkpoint_dir)
+        with tf.variable_scope("DQN"):
+            #placeholders
+            self.actions = tf.placeholder(tf.float32, shape=[None])
+            self.targets = tf.placeholder(tf.float32, [None])
+
+
+            gather_indices = tf.range(tf.shape(self.predictions)[0]) * tf.shape(self.predictions)[1] + self.actions
+            self.action_predictions = tf.gather(tf.reshape(self.predictions, [-1]), gather_indices)
+
+            #loss
+            self.losses = tf.squared_difference(self.targets, self.action_predictions)
+            self.loss = tf.reduce_mean(self.losses)
+            self.optimizer = tf.train.RMSPropOptimizer(self.learning_rate, 0.99, 0.0, 1e-6)
+            self.update_step = self.optimizer.minimize(self.loss)
+
+            self.sess.run(tf.initialize_all_variables())
+            self.sess.run(self.update_target_params)    #init two network with same params
+            if restore and self.latest_checkpoint :
+                self.saver.restore(self.sess, self.latest_checkpoint)
+
+
+
+    def update_target_q_network(self):
+        for name in self.behaviour_weights.keys():
+            self.copy_to[name].eval({self.copy_from[name]: self.behaviour_weights[name].eval()})
