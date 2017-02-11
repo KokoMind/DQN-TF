@@ -22,7 +22,8 @@ class Environment(object):
 		if not os.path.exists(self.__monitor_path):
 			os.makedirs(self.__monitor_path)
 
-		self.__env = wrappers.Monitor(self.__env, self.__monitor_path, resume=True,
+		if config.monitor:
+			self.__env = wrappers.Monitor(self.__env, self.__monitor_path, resume=True,
 							video_callable=lambda count: count % config.record_video_every == 0)
 
 		self.__init_state_processor(config.state_processor_params)

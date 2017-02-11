@@ -6,6 +6,7 @@ class EnvConfig():
 						"crop_box": (34, 0, 160, 160),
 						"gray": True,
 						"frames_num": 4 }
+	monitor = True
 	record_video_every = 10
 
 class AgentConfig():
