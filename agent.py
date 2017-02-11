@@ -24,7 +24,7 @@ class Agent:
         self.memory = ReplayMemory(config.state_shape, config.rep_mem_max)
 
         self.init_dirs()
-        self.saver = tf.train.Saver()
+        self.saver = tf.train.Saver(max_to_keep=10)
         self.summary_writer = tf.summary.FileWriter(self.summary_dir)
 
         self.init_global_step()
