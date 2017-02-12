@@ -150,7 +150,7 @@ class Agent:
 
                 # Calculate the Epsilon for this time step
                 # Take an action ..Then observe and save
-                self.epsilon = min(self.config.final_epsilon, self.epsilon - self.epsilon_step)
+                self.epsilon = max(self.config.final_epsilon, self.epsilon - self.epsilon_step)
                 action = self.take_action(state)
                 next_state, reward, done = self.observe_and_save(state, self.environment.valid_actions[action])
 
