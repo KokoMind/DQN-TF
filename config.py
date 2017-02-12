@@ -9,7 +9,7 @@ class EnvConfig(object):
                               "gray": True,
                               "frames_num": 4}
     monitor = True
-    record_video_every = 100
+    record_video_every = 20
 
 
 class AgentConfig(object):
