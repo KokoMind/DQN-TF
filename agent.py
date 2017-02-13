@@ -67,6 +67,13 @@ class Agent:
             self.global_step_input = tf.placeholder('int32', None, name='global_step_input')
             self.global_step_assign_op = self.global_step_tensor.assign(self.global_step_input)
 
+    def init_epsilon(self):
+        """Create an epsilon variable"""
+        with tf.variable_scope('epsilon'):
+            self.epsilon = tf.Variable(self.config.initial_epsilon, trainable=False, name='epsilon')
+            self.epsilon_input = tf.placeholder('float32', None, name='epsilon_input')
+            self.epsilon_assign_op = self.global_step_tensor.assign(self.epsilon_input)
+
     def init_replay_memory(self):
         # Populate the replay memory with initial experience
         print("initializing replay memory...")
@@ -107,7 +114,7 @@ class Agent:
 
     def take_action(self, state):
         """Take the action based on the policy function"""
-        action_probs = self.policy(self.sess, state, self.epsilon)
+        action_probs = self.policy(self.sess, state, self.epsilon.eval(self.sess))
         action = np.random.choice(np.arange(len(action_probs)), p=action_probs)
         return action
 
@@ -125,7 +132,7 @@ class Agent:
         """Train the agent in episodic techniques"""
 
         # Initialize the epsilon, it's step, the policy function, the replay memory
-        self.epsilon = self.config.initial_epsilon
+        self.init_epsilon()
         self.epsilon_step = (self.config.initial_epsilon - self.config.final_epsilon) / self.config.exploration_steps
         self.policy = self.policy_fn(self.config.policy_fn, self.estimator, self.environment.n_actions)
         self.init_replay_memory()
@@ -150,7 +157,7 @@ class Agent:
 
                 # Calculate the Epsilon for this time step
                 # Take an action ..Then observe and save
-                self.epsilon = max(self.config.final_epsilon, self.epsilon - self.epsilon_step)
+                self.epsilon_assign_op.eval(session=self.sess, feed_dict={self.epsilon_input: max(self.config.final_epsilon, self.epsilon.eval(self.sess) - self.epsilon_step)})
                 action = self.take_action(state)
                 next_state, reward, done = self.observe_and_save(state, self.environment.valid_actions[action])
 
@@ -169,7 +176,7 @@ class Agent:
                     episode_summary = tf.Summary()
                     episode_summary.value.add(simple_value=total_reward, node_name="episode_reward", tag="episode_reward")
                     episode_summary.value.add(simple_value=t, node_name="episode_length", tag="episode_length")
-                    episode_summary.value.add(simple_value=self.epsilon, node_name="epsilon", tag="epsilon")
+                    episode_summary.value.add(simple_value=self.epsilon.eval(self.sess), node_name="epsilon", tag="epsilon")
                     self.summary_writer.add_summary(episode_summary, self.global_step_tensor.eval(self.sess))
                     self.summary_writer.flush()
                     break
