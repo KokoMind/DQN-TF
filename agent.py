@@ -37,7 +37,7 @@ class Agent:
 
         self.saver = tf.train.Saver(max_to_keep=10)
 
-        if config.is_train and config.initial_training:
+        if config.is_train and not config.cont_training:
             pass
         elif config.is_train and config.cont_training:
             self.load()

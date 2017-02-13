@@ -32,8 +32,7 @@ class EstimatorConfig(object):
 
 class Experiment1(EnvConfig, AgentConfig, ReplayMemoryConfig, EstimatorConfig):
     is_train = True
-    initial_training = True
-    cont_training = False
+    cont_training = True
     is_play = False
     num_episodes = 10000
     update_target_estimator_every = 10000
