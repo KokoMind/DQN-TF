@@ -24,7 +24,6 @@ class Agent:
         self.memory = ReplayMemory(config.state_shape, config.rep_max_size)
 
         self.init_dirs()
-        self.summary_writer = tf.summary.FileWriter(self.summary_dir, self.sess.graph)
 
         self.init_global_step()
         self.init_epsilon()
@@ -37,6 +36,7 @@ class Agent:
         self.sess.run(self.init)
 
         self.saver = tf.train.Saver(max_to_keep=10)
+        self.summary_writer = tf.summary.FileWriter(self.summary_dir, self.sess.graph)
 
         if config.is_train and not config.cont_training:
             pass
