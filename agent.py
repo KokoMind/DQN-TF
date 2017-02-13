@@ -169,6 +169,7 @@ class Agent:
                     episode_summary = tf.Summary()
                     episode_summary.value.add(simple_value=total_reward, node_name="episode_reward", tag="episode_reward")
                     episode_summary.value.add(simple_value=t, node_name="episode_length", tag="episode_length")
+                    episode_summary.value.add(simple_value=self.epsilon, node_name="epsilon", tag="epsilon")
                     self.summary_writer.add_summary(episode_summary, self.global_step_tensor.eval(self.sess))
                     self.summary_writer.flush()
                     break
