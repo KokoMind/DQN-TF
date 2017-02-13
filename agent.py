@@ -24,7 +24,7 @@ class Agent:
         self.memory = ReplayMemory(config.state_shape, config.rep_max_size)
 
         self.init_dirs()
-        self.summary_writer = tf.summary.FileWriter(self.summary_dir)
+        self.summary_writer = tf.summary.FileWriter(self.summary_dir, self.sess.graph)
 
         self.init_global_step()
         self.init_epsilon()
