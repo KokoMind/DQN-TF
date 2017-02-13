@@ -191,18 +191,24 @@ class Agent:
 
     def play(self, n_episode=10):
         """Function that play greedily on the policy learnt"""
+        # Play Greedily
         self.policy = self.policy_fn('greedy', self.estimator, self.environment.n_actions)
 
-        for episode in range(n_episode):
+        for cur_episode in range(n_episode):
 
             state = self.environment.reset()
+            total_reward = 0
 
             for t in itertools.count():
 
                 best_action = self.policy(self.sess, state)
-                next_state, reward, done = self.environment.step(best_action)
+                next_state, reward, done = self.environment.step(self.environment.valid_actions[best_action])
+
+                total_reward += reward
 
                 if done:
+                    print("Total Reward in Epsiode " + str(cur_episode) + " = " + str(total_reward))
+                    print("Total Length in Epsiode " + str(cur_episode) + " = " + str(t))
                     break
 
                 state = next_state
