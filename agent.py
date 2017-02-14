@@ -16,11 +16,12 @@ __version__ = 0.1
 class Agent:
     """Our Wasted Agent :P """
 
-    def __init__(self, sess, config, environment):
+    def __init__(self, sess, config, environment, evauation_enviroment):
         # Get the session, config, environment, and create a replaymemory
         self.sess = sess
         self.config = config
         self.environment = environment
+        self.evauation_enviroment = evauation_enviroment
         self.memory = ReplayMemory(config.state_shape, config.rep_max_size)
 
         self.init_dirs()
@@ -142,6 +143,9 @@ class Agent:
             # Save the current checkpoint
             self.save()
 
+            if cur_episode % self.config.evaluate_every == 0:
+                self.evaluate()
+
             state = self.environment.reset()
             total_reward = 0
 
@@ -149,7 +153,8 @@ class Agent:
             for t in itertools.count():
 
                 # Update the Global step
-                self.global_step_assign_op.eval(session=self.sess, feed_dict={self.global_step_input: self.global_step_tensor.eval(self.sess) + 1})
+                self.global_step_assign_op.eval(session=self.sess, feed_dict={
+                    self.global_step_input: self.global_step_tensor.eval(self.sess) + 1})
 
                 # time to update the target estimator
                 if self.global_step_tensor.eval(self.sess) % self.config.update_target_estimator_every == 0:
@@ -157,16 +162,20 @@ class Agent:
 
                 # Calculate the Epsilon for this time step
                 # Take an action ..Then observe and save
-                self.epsilon_assign_op.eval(session=self.sess, feed_dict={self.epsilon_input: max(self.config.final_epsilon, self.epsilon_tensor.eval(self.sess) - self.epsilon_step)})
+                self.epsilon_assign_op.eval(session=self.sess, feed_dict={
+                    self.epsilon_input: max(self.config.final_epsilon,
+                                            self.epsilon_tensor.eval(self.sess) - self.epsilon_step)})
                 action = self.take_action(state)
                 next_state, reward, done = self.observe_and_save(state, self.environment.valid_actions[action])
 
                 # Sample a minibatch from the replay memory
-                state_batch, next_state_batch, action_batch, reward_batch, done_batch = self.memory.get_batch(self.config.batch_size)
+                state_batch, next_state_batch, action_batch, reward_batch, done_batch = self.memory.get_batch(
+                    self.config.batch_size)
 
                 # Calculate targets Then Compute the loss
                 q_values_next = self.estimator.predict(next_state_batch, type="target")
-                targets_batch = reward_batch + np.invert(done_batch).astype(np.float32) * self.config.discount_factor * np.amax(q_values_next, axis=1)
+                targets_batch = reward_batch + np.invert(done_batch).astype(
+                    np.float32) * self.config.discount_factor * np.amax(q_values_next, axis=1)
                 _ = self.estimator.update(state_batch, action_batch, targets_batch)
 
                 total_reward += reward
@@ -174,9 +183,11 @@ class Agent:
                 if done:  # IF terminal state so exit the episode
                     # Add summaries to tensorboard
                     episode_summary = tf.Summary()
-                    episode_summary.value.add(simple_value=total_reward, node_name="episode_reward", tag="episode_reward")
+                    episode_summary.value.add(simple_value=total_reward, node_name="episode_reward",
+                                              tag="episode_reward")
                     episode_summary.value.add(simple_value=t, node_name="episode_length", tag="episode_length")
-                    episode_summary.value.add(simple_value=self.epsilon_tensor.eval(self.sess), node_name="epsilon", tag="epsilon")
+                    episode_summary.value.add(simple_value=self.epsilon_tensor.eval(self.sess), node_name="epsilon",
+                                              tag="epsilon")
                     self.summary_writer.add_summary(episode_summary, self.global_step_tensor.eval(self.sess))
                     self.summary_writer.flush()
                     break
@@ -212,3 +223,29 @@ class Agent:
                     break
 
                 state = next_state
+
+    def evaluate(self):
+        policy = self.policy_fn('greedy', self.estimator, self.evauation_enviroment.n_actions)
+
+        for cur_episode in range(self.config.evaluation_episodes):
+
+            state = self.evauation_enviroment.reset()
+            total_reward = 0
+
+            for t in itertools.count():
+
+                best_action = policy(self.sess, state)
+                next_state, reward, done = self.evauation_enviroment.step(
+                    self.evauation_enviroment.valid_actions[best_action])
+
+                total_reward += reward
+
+                if done:
+                    with tf.scope_name('evaluation'):
+                        episode_summary = tf.Summary()
+                        episode_summary.value.add(simple_value=total_reward, node_name="episode_reward",
+                                                  tag="episode_reward")
+                        episode_summary.value.add(simple_value=t, node_name="episode_length", tag="episode_length")
+                        self.summary_writer.add_summary(episode_summary, self.global_step_tensor.eval(self.sess))
+                        self.summary_writer.flush()
+                    break

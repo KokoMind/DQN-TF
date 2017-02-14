@@ -8,7 +8,7 @@ import os
 class Environment(object):
     """Wrapping the gym environment"""
 
-    def __init__(self, sess, config):
+    def __init__(self, sess, config, evauation=False):
         """
         state_processor_params = { "resize_shape": (h, w),
                     "crop_box": (y1, x1, y2, x2),
@@ -20,7 +20,7 @@ class Environment(object):
         self.__monitor_path = os.path.join(config.experiment_dir, "monitor/")
         self.__valid_actions = [x for x in range(self.n_actions)]
 
-        if config.monitor:
+        if evauation:
             self.__env = wrappers.Monitor(self.__env, self.__monitor_path, resume=True,
                                           video_callable=lambda count: count % config.record_video_every == 0)
 

@@ -8,8 +8,7 @@ class EnvConfig(object):
                               "crop_box": (34, 0, 160, 160),
                               "gray": True,
                               "frames_num": 4}
-    monitor = True
-    record_video_every = 20
+    record_video_every = 5
 
 
 class AgentConfig(object):
@@ -18,6 +17,8 @@ class AgentConfig(object):
     exploration_steps = 500000
     policy_fn = 'epsilon_greedy'
     discount_factor = 0.99
+    evaluate_every = 25
+    evaluation_episodes = 5
 
 
 class ReplayMemoryConfig(object):

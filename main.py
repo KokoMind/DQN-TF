@@ -19,6 +19,7 @@ def main():
     sess = tf.Session()
 
     env = Environment(sess, config)
+    evauation_env = Environment(sess, config, )
 
     wasted = Agent(sess, config, env)
 
