@@ -145,7 +145,7 @@ class Agent:
 
             # Evaluate Now to see how it behave
             if cur_episode % self.config.evaluate_every == 0:
-                self.evaluate(cur_episode % self.config.evaluate_every)
+                self.evaluate(cur_episode / self.config.evaluate_every)
 
             state = self.environment.reset()
             total_reward = 0
