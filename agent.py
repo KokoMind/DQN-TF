@@ -241,11 +241,11 @@ class Agent:
                 total_reward += reward
 
                 if done:
-                    with tf.scope_name('evaluation'):
-                        episode_summary = tf.Summary()
-                        episode_summary.value.add(simple_value=total_reward, node_name="episode_reward",
-                                                  tag="episode_reward")
-                        episode_summary.value.add(simple_value=t, node_name="episode_length", tag="episode_length")
-                        self.summary_writer.add_summary(episode_summary, self.global_step_tensor.eval(self.sess))
-                        self.summary_writer.flush()
+                    episode_summary = tf.Summary()
+                    episode_summary.value.add(simple_value=total_reward, node_name="evaluation_rewards",
+                                              tag="evaluation_rewards")
+                    self.summary_writer.add_summary(episode_summary, self.global_step_tensor.eval(self.sess)+cur_episode)
+                    self.summary_writer.flush()
                     break
+
+
