@@ -249,6 +249,6 @@ class Agent:
                     episode_summary.value.add(simple_value=total_reward, node_name="evaluation_rewards",
                                               tag="evaluation_rewards")
                     episode_summary.value.add(simple_value=t, node_name="evaluation_length", tag="evaluation_length")
-                    self.summary_writer.add_summary(episode_summary, local_step + cur_episode)
+                    self.summary_writer.add_summary(episode_summary, local_step * self.config.evaluation_episodes + cur_episode)
                     self.summary_writer.flush()
                     break
