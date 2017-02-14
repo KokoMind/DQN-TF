@@ -19,9 +19,9 @@ def main():
     sess = tf.Session()
 
     env = Environment(sess, config)
-    evauation_env = Environment(sess, config, )
+    evauation_env = Environment(sess, config, evauation=True)
 
-    wasted = Agent(sess, config, env)
+    wasted = Agent(sess, config, env, evauation_env)
 
     if config.is_train:
         try:
