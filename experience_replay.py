@@ -1,5 +1,6 @@
 import numpy as np
 
+# TODO: Prioritized replay memory
 
 class ReplayMemory:
     def __init__(self, shape, max_size=500000):
