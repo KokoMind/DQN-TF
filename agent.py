@@ -252,3 +252,5 @@ class Agent:
                     self.summary_writer.add_summary(episode_summary, local_step * self.config.evaluation_episodes + cur_episode)
                     self.summary_writer.flush()
                     break
+
+        print('Finished evaluation #{0}'.format(local_step))
