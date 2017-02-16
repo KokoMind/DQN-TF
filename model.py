@@ -29,7 +29,7 @@ class BaseModel(object):
         initializer = tf.truncated_normal_initializer(0, 0.02)
         activation_fn = tf.nn.relu
 
-        with tf.name_scope('behaviour'):
+        with tf.variable_scope('behaviour'):
             self.b_x = tf.placeholder(tf.float32, shape=[None] + shape, name="states")
             self.b_conv1, self.behaviour_weights['conv1_w'], self.behaviour_weights['conv1_b'] = conv2d(self.b_x,
                                                                                                         32, [8, 8],
@@ -59,7 +59,7 @@ class BaseModel(object):
                                                                                                   num_outputs,
                                                                                                   name='b_out')
 
-        with tf.name_scope('target'):
+        with tf.variable_scope('target'):
             self.t_x = tf.placeholder(tf.float32, shape=[None] + shape, name="states")
             self.t_conv1, self.target_weights['conv1_w'], self.target_weights['conv1_b'] = conv2d(self.t_x,
                                                                                                   32, [8, 8], [4, 4],
@@ -83,7 +83,7 @@ class BaseModel(object):
             self.t_out, self.target_weights['out_w'], self.target_weights['out_b'] = linear(self.t_fc1, num_outputs,
                                                                                             name='t_out')
 
-        with tf.name_scope('copy'):
+        with tf.variable_scope('copy'):
             self.copy_from = {}
             self.copy_to = {}
 
@@ -110,7 +110,7 @@ class DQN(BaseModel):
         self.shape = config.state_shape
         self.learning_rate = config.learning_rate
         self.build_model(num_outputs=self.num_actions, shape=self.shape)
-        with tf.name_scope("DQN"):
+        with tf.variable_scope("DQN"):
             # placeholders
             self.actions = tf.placeholder(tf.int32, shape=[None])
             self.targets = tf.placeholder(tf.float32, [None])
