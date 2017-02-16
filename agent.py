@@ -64,14 +64,14 @@ class Agent:
 
     def init_global_step(self):
         """Create a global step variable to be a reference to the number of iterations"""
-        with tf.variable_scope('step'):
+        with tf.name_scope('step'):
             self.global_step_tensor = tf.Variable(0, trainable=False, name='global_step')
             self.global_step_input = tf.placeholder('int32', None, name='global_step_input')
             self.global_step_assign_op = self.global_step_tensor.assign(self.global_step_input)
 
     def init_epsilon(self):
         """Create an epsilon variable"""
-        with tf.variable_scope('epsilon'):
+        with tf.name_scope('epsilon'):
             self.epsilon_tensor = tf.Variable(self.config.initial_epsilon, trainable=False, name='epsilon')
             self.epsilon_input = tf.placeholder('float32', None, name='epsilon_input')
             self.epsilon_assign_op = self.epsilon_tensor.assign(self.epsilon_input)

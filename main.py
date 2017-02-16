@@ -6,7 +6,6 @@ from agent import Agent
 from config import get_config
 from utils import create_dirs
 
-# TODO: name the scopes using name_scope
 
 def main():
     # Reset the graph
