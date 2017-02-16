@@ -27,24 +27,22 @@ class Environment(object):
         self.__init_state_processor(config.state_processor_params, evaluation)
 
     def reset(self):
-        with tf.name_scope('env_reset'):
-            state = self.__env.reset()
-            state = self.__state_processor(state)
-            if self.__frames_num > 1:
-                state = np.squeeze(state)
-                self.__states_stack = np.stack([state] * self.__frames_num, axis=2)
-                return self.__states_stack
-            else:
-                return state
+        state = self.__env.reset()
+        state = self.__state_processor(state)
+        if self.__frames_num > 1:
+            state = np.squeeze(state)
+            self.__states_stack = np.stack([state] * self.__frames_num, axis=2)
+            return self.__states_stack
+        else:
+            return state
 
     def step(self, action):
-        with tf.name_scope('env_step'):
-            next_state, reward, done, _ = self.__env.step(action)
-            next_state = self.__state_processor(next_state)
-            if self.__frames_num > 1:
-                next_state = np.concatenate((next_state, self.__states_stack[:, :, :self.__frames_num - 1]), axis=2)
-                self.__states_stack = next_state
-            return next_state, reward, done
+        next_state, reward, done, _ = self.__env.step(action)
+        next_state = self.__state_processor(next_state)
+        if self.__frames_num > 1:
+            next_state = np.concatenate((next_state, self.__states_stack[:, :, :self.__frames_num - 1]), axis=2)
+            self.__states_stack = next_state
+        return next_state, reward, done
 
     def sample_action(self):
         return np.random.choice(self.__env.action_space.n)
