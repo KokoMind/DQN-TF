@@ -184,11 +184,9 @@ class Agent:
                 if done:  # IF terminal state so exit the episode
                     # Add summaries to tensorboard
                     episode_summary = tf.Summary()
-                    episode_summary.value.add(simple_value=total_reward, node_name="episode_reward",
-                                              tag="episode_reward")
+                    episode_summary.value.add(simple_value=total_reward, node_name="episode_reward", tag="episode_reward")
                     episode_summary.value.add(simple_value=t, node_name="episode_length", tag="episode_length")
-                    episode_summary.value.add(simple_value=self.epsilon_tensor.eval(self.sess), node_name="epsilon",
-                                              tag="epsilon")
+                    episode_summary.value.add(simple_value=self.epsilon_tensor.eval(self.sess), node_name="epsilon", tag="epsilon")
                     self.summary_writer.add_summary(episode_summary, self.global_step_tensor.eval(self.sess))
                     self.summary_writer.flush()
                     break
@@ -246,8 +244,7 @@ class Agent:
 
                 if done:
                     episode_summary = tf.Summary()
-                    episode_summary.value.add(simple_value=total_reward, node_name="evaluation_rewards",
-                                              tag="evaluation_rewards")
+                    episode_summary.value.add(simple_value=total_reward, node_name="evaluation_rewards", tag="evaluation_rewards")
                     episode_summary.value.add(simple_value=t, node_name="evaluation_length", tag="evaluation_length")
                     self.summary_writer.add_summary(episode_summary, local_step * self.config.evaluation_episodes + cur_episode)
                     self.summary_writer.flush()
