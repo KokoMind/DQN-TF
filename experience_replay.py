@@ -1,7 +1,5 @@
 import numpy as np
 
-# TODO: Prioritized replay memory
-# https://arxiv.org/pdf/1511.05952.pdf
 
 class ReplayMemory:
     def __init__(self, shape, max_size=500000):
@@ -25,7 +23,7 @@ class ReplayMemory:
 
         """
 
-        assert state.shape ==tuple(self.shape)
+        assert state.shape == tuple(self.shape)
         self.states[self.idx] = state
         self.next_states[self.idx] = next_state
         self.actions[self.idx] = action
