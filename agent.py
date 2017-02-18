@@ -145,13 +145,8 @@ class Agent:
         self.epsilon_step = (self.config.initial_epsilon - self.config.final_epsilon) / self.config.exploration_steps
         self.policy = self.policy_fn(self.config.policy_fn, self.estimator, self.environment.n_actions)
         self.init_replay_memory()
-<<<<<<< HEAD
-        cur_episode=55
-        for cur_episode in range(self.config.num_episodes):
-=======
 
         for cur_episode in range(self.cur_episode_tensor.eval(self.sess) + 1, self.config.num_episodes, 1):
->>>>>>> 87d22ca483c3facb61d3d020d5b1b44e8f39f373
 
             # Save the current checkpoint
             self.save()
