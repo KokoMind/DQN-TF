@@ -103,7 +103,7 @@ class Agent:
             return actions
 
         def greedy(sess, observation):
-            q_values = estimator.predict(np.expand_dims(observation, 0))[0]
+            q_values = estimator.predict(np.expand_dims(observation, 0),type="behaviour")[0]
             best_action = np.argmax(q_values)
             return best_action
 
@@ -137,7 +137,7 @@ class Agent:
         self.epsilon_step = (self.config.initial_epsilon - self.config.final_epsilon) / self.config.exploration_steps
         self.policy = self.policy_fn(self.config.policy_fn, self.estimator, self.environment.n_actions)
         self.init_replay_memory()
-
+        cur_episode=55
         for cur_episode in range(self.config.num_episodes):
 
             # Save the current checkpoint
