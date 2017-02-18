@@ -90,10 +90,10 @@ class Agent:
         with tf.variable_scope('summary'):
             self.summary_placeholders = {}
             self.summary_ops = {}
-            self.scalar_summary_tags = ['episode.total_reward', 'episode.length', 'epsilon', 'evaluation.total_reward', 'evaluation.length']
+            self.scalar_summary_tags = ['episode.total_reward', 'episode.length', 'evaluation.total_reward', 'evaluation.length', 'epsilon']
             for tag in self.scalar_summary_tags:
-                self.summary_placeholders[tag] = tf.placeholder('int32', None, name=tag)
-                self.summary_ops[tag] = tf.scalar_summary(tag, self.summary_placeholders[tag])
+                self.summary_placeholders[tag] = tf.placeholder('float32', None, name=tag)
+                self.summary_ops[tag] = tf.summary.scalar(tag, self.summary_placeholders[tag])
 
     def init_replay_memory(self):
         # Populate the replay memory with initial experience
