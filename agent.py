@@ -26,6 +26,7 @@ class Agent:
 
         self.init_dirs()
 
+        self.init_cur_epsiode()
         self.init_global_step()
         self.init_epsilon()
 
@@ -61,6 +62,13 @@ class Agent:
         # Create directories for checkpoints and summaries
         self.checkpoint_dir = os.path.join(self.config.experiment_dir, "checkpoints/")
         self.summary_dir = os.path.join(self.config.experiment_dir, "summaries/")
+
+    def init_cur_epsiode(self):
+        """Create cur episode tensor to totally save the process of the training"""
+        with tf.variable_scope('cur_episode'):
+            self.cur_episode_tensor = tf.Variable(-1, trainable=False, name='cur_epsiode')
+            self.cur_epsiode_input = tf.placeholder('int32', None, name='cur_episode_input')
+            self.cur_episode_assign_op = self.cur_episode_tensor.assign(self.cur_epsiode_input)
 
     def init_global_step(self):
         """Create a global step variable to be a reference to the number of iterations"""
@@ -138,10 +146,13 @@ class Agent:
         self.policy = self.policy_fn(self.config.policy_fn, self.estimator, self.environment.n_actions)
         self.init_replay_memory()
 
-        for cur_episode in range(self.config.num_episodes):
+        for cur_episode in range(self.cur_episode_tensor.eval(self.sess) + 1, self.config.num_episodes, 1):
 
             # Save the current checkpoint
             self.save()
+
+            # Update the Cur Episode tensor
+            self.cur_episode_assign_op.eval(session=self.sess, feed_dict={self.cur_epsiode_input: self.cur_episode_tensor.eval(self.sess) + 1})
 
             # Evaluate Now to see how it behave
             if cur_episode % self.config.evaluate_every == 0:
@@ -154,8 +165,7 @@ class Agent:
             for t in itertools.count():
 
                 # Update the Global step
-                self.global_step_assign_op.eval(session=self.sess, feed_dict={
-                    self.global_step_input: self.global_step_tensor.eval(self.sess) + 1})
+                self.global_step_assign_op.eval(session=self.sess, feed_dict={self.global_step_input: self.global_step_tensor.eval(self.sess) + 1})
 
                 # time to update the target estimator
                 if self.global_step_tensor.eval(self.sess) % self.config.update_target_estimator_every == 0:
@@ -163,20 +173,16 @@ class Agent:
 
                 # Calculate the Epsilon for this time step
                 # Take an action ..Then observe and save
-                self.epsilon_assign_op.eval(session=self.sess, feed_dict={
-                    self.epsilon_input: max(self.config.final_epsilon,
-                                            self.epsilon_tensor.eval(self.sess) - self.epsilon_step)})
+                self.epsilon_assign_op.eval({self.epsilon_input: max(self.config.final_epsilon, self.epsilon_tensor.eval(self.sess) - self.epsilon_step)}, self.sess)
                 action = self.take_action(state)
                 next_state, reward, done = self.observe_and_save(state, self.environment.valid_actions[action])
 
                 # Sample a minibatch from the replay memory
-                state_batch, next_state_batch, action_batch, reward_batch, done_batch = self.memory.get_batch(
-                    self.config.batch_size)
+                state_batch, next_state_batch, action_batch, reward_batch, done_batch = self.memory.get_batch(self.config.batch_size)
 
                 # Calculate targets Then Compute the loss
                 q_values_next = self.estimator.predict(next_state_batch, type="target")
-                targets_batch = reward_batch + np.invert(done_batch).astype(
-                    np.float32) * self.config.discount_factor * np.amax(q_values_next, axis=1)
+                targets_batch = reward_batch + np.invert(done_batch).astype(np.float32) * self.config.discount_factor * np.amax(q_values_next, axis=1)
                 _ = self.estimator.update(state_batch, action_batch, targets_batch)
 
                 total_reward += reward
@@ -237,8 +243,7 @@ class Agent:
             for t in itertools.count():
 
                 best_action = policy(self.sess, state)
-                next_state, reward, done = self.evaluation_enviroment.step(
-                    self.evaluation_enviroment.valid_actions[best_action])
+                next_state, reward, done = self.evaluation_enviroment.step(self.evaluation_enviroment.valid_actions[best_action])
 
                 total_reward += reward
 
