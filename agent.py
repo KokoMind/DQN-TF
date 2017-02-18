@@ -268,7 +268,7 @@ class Agent:
                     # Add summaries to tensorboard
                     summaries_dict = {'evaluation.total_reward': total_reward,
                                       'evaluation.length': t}
-                    self.add_summary(summaries_dict, self.global_step_tensor.eval(self.sess))
+                    self.add_summary(summaries_dict, local_step * 5 + t)
                     break
 
         print('Finished evaluation #{0}'.format(local_step))
