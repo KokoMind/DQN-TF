@@ -29,6 +29,7 @@ class Agent:
         self.init_cur_epsiode()
         self.init_global_step()
         self.init_epsilon()
+        self.init_summaries()
 
         # Intialize the DQN graph which contain 2 Networks Target and Q
         self.estimator = DQN(sess, config, self.environment.n_actions)
@@ -84,6 +85,16 @@ class Agent:
             self.epsilon_input = tf.placeholder('float32', None, name='epsilon_input')
             self.epsilon_assign_op = self.epsilon_tensor.assign(self.epsilon_input)
 
+    def init_summaries(self):
+        """Create the summary part of the graph"""
+        with tf.variable_scope('summary'):
+            self.summary_placeholders = {}
+            self.summary_ops = {}
+            self.scalar_summary_tags = ['episode.total_reward', 'episode.length', 'evaluation.total_reward', 'evaluation.length', 'epsilon']
+            for tag in self.scalar_summary_tags:
+                self.summary_placeholders[tag] = tf.placeholder('float32', None, name=tag)
+                self.summary_ops[tag] = tf.summary.scalar(tag, self.summary_placeholders[tag])
+
     def init_replay_memory(self):
         # Populate the replay memory with initial experience
         print("initializing replay memory...")
@@ -111,7 +122,7 @@ class Agent:
             return actions
 
         def greedy(sess, observation):
-            q_values = estimator.predict(np.expand_dims(observation, 0),type="behaviour")[0]
+            q_values = estimator.predict(np.expand_dims(observation, 0), type="target")[0]
             best_action = np.argmax(q_values)
             return best_action
 
@@ -137,6 +148,14 @@ class Agent:
     def update_target_network(self):
         """Update Target network By copying paramter between the two networks in DQN"""
         self.estimator.update_target_network()
+
+    def add_summary(self, summaries_dict, step):
+        """Add the summaries to tensorboard"""
+        summary_list = self.sess.run([self.summary_ops[tag] for tag in summaries_dict.keys()],
+                                     {self.summary_placeholders[tag]: value for tag, value in summaries_dict.items()})
+        for summary in summary_list:
+            self.summary_writer.add_summary(summary, step)
+        self.summary_writer.flush()
 
     def train_episodic(self):
         """Train the agent in episodic techniques"""
@@ -189,12 +208,10 @@ class Agent:
 
                 if done:  # IF terminal state so exit the episode
                     # Add summaries to tensorboard
-                    episode_summary = tf.Summary()
-                    episode_summary.value.add(simple_value=total_reward, node_name="episode_reward", tag="episode_reward")
-                    episode_summary.value.add(simple_value=t, node_name="episode_length", tag="episode_length")
-                    episode_summary.value.add(simple_value=self.epsilon_tensor.eval(self.sess), node_name="epsilon", tag="epsilon")
-                    self.summary_writer.add_summary(episode_summary, self.global_step_tensor.eval(self.sess))
-                    self.summary_writer.flush()
+                    summaries_dict = {'episode.total_reward': total_reward,
+                                      'episode.length': t,
+                                      'epsilon': self.epsilon_tensor.eval(self.sess)}
+                    self.add_summary(summaries_dict, self.global_step_tensor.eval(self.sess))
                     break
 
                 state = next_state
@@ -248,11 +265,10 @@ class Agent:
                 total_reward += reward
 
                 if done:
-                    episode_summary = tf.Summary()
-                    episode_summary.value.add(simple_value=total_reward, node_name="evaluation_rewards", tag="evaluation_rewards")
-                    episode_summary.value.add(simple_value=t, node_name="evaluation_length", tag="evaluation_length")
-                    self.summary_writer.add_summary(episode_summary, local_step * self.config.evaluation_episodes + cur_episode)
-                    self.summary_writer.flush()
+                    # Add summaries to tensorboard
+                    summaries_dict = {'evaluation.total_reward': total_reward,
+                                      'evaluation.length': t}
+                    self.add_summary(summaries_dict, local_step * 5 + cur_episode)
                     break
 
         print('Finished evaluation #{0}'.format(local_step))
