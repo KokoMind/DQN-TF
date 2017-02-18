@@ -122,7 +122,7 @@ class Agent:
             return actions
 
         def greedy(sess, observation):
-            q_values = estimator.predict(np.expand_dims(observation, 0), type="behaviour")[0]
+            q_values = estimator.predict(np.expand_dims(observation, 0), type="target")[0]
             best_action = np.argmax(q_values)
             return best_action
 
@@ -268,7 +268,7 @@ class Agent:
                     # Add summaries to tensorboard
                     summaries_dict = {'evaluation.total_reward': total_reward,
                                       'evaluation.length': t}
-                    self.add_summary(summaries_dict, local_step * 5 + t)
+                    self.add_summary(summaries_dict, local_step * 5 + cur_episode)
                     break
 
         print('Finished evaluation #{0}'.format(local_step))
