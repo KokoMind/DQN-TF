@@ -26,8 +26,10 @@ class Agent:
 
         self.init_dirs()
 
+        self.init_cur_epsiode()
         self.init_global_step()
         self.init_epsilon()
+        self.init_summaries()
 
         # Intialize the DQN graph which contain 2 Networks Target and Q
         self.estimator = DQN(sess, config, self.environment.n_actions)
@@ -62,6 +64,13 @@ class Agent:
         self.checkpoint_dir = os.path.join(self.config.experiment_dir, "checkpoints/")
         self.summary_dir = os.path.join(self.config.experiment_dir, "summaries/")
 
+    def init_cur_epsiode(self):
+        """Create cur episode tensor to totally save the process of the training"""
+        with tf.variable_scope('cur_episode'):
+            self.cur_episode_tensor = tf.Variable(-1, trainable=False, name='cur_epsiode')
+            self.cur_epsiode_input = tf.placeholder('int32', None, name='cur_episode_input')
+            self.cur_episode_assign_op = self.cur_episode_tensor.assign(self.cur_epsiode_input)
+
     def init_global_step(self):
         """Create a global step variable to be a reference to the number of iterations"""
         with tf.variable_scope('step'):
@@ -75,6 +84,16 @@ class Agent:
             self.epsilon_tensor = tf.Variable(self.config.initial_epsilon, trainable=False, name='epsilon')
             self.epsilon_input = tf.placeholder('float32', None, name='epsilon_input')
             self.epsilon_assign_op = self.epsilon_tensor.assign(self.epsilon_input)
+
+    def init_summaries(self):
+        """Create the summary part of the graph"""
+        with tf.variable_scope('summary'):
+            self.summary_placeholders = {}
+            self.summary_ops = {}
+            self.scalar_summary_tags = ['episode.total_reward', 'episode.length', 'evaluation.total_reward', 'evaluation.length', 'epsilon']
+            for tag in self.scalar_summary_tags:
+                self.summary_placeholders[tag] = tf.placeholder('float32', None, name=tag)
+                self.summary_ops[tag] = tf.summary.scalar(tag, self.summary_placeholders[tag])
 
     def init_replay_memory(self):
         # Populate the replay memory with initial experience
@@ -103,7 +122,7 @@ class Agent:
             return actions
 
         def greedy(sess, observation):
-            q_values = estimator.predict(np.expand_dims(observation, 0))[0]
+            q_values = estimator.predict(np.expand_dims(observation, 0), type="target")[0]
             best_action = np.argmax(q_values)
             return best_action
 
@@ -130,6 +149,14 @@ class Agent:
         """Update Target network By copying paramter between the two networks in DQN"""
         self.estimator.update_target_network()
 
+    def add_summary(self, summaries_dict, step):
+        """Add the summaries to tensorboard"""
+        summary_list = self.sess.run([self.summary_ops[tag] for tag in summaries_dict.keys()],
+                                     {self.summary_placeholders[tag]: value for tag, value in summaries_dict.items()})
+        for summary in summary_list:
+            self.summary_writer.add_summary(summary, step)
+        self.summary_writer.flush()
+
     def train_episodic(self):
         """Train the agent in episodic techniques"""
 
@@ -138,10 +165,13 @@ class Agent:
         self.policy = self.policy_fn(self.config.policy_fn, self.estimator, self.environment.n_actions)
         self.init_replay_memory()
 
-        for cur_episode in range(self.config.num_episodes):
+        for cur_episode in range(self.cur_episode_tensor.eval(self.sess) + 1, self.config.num_episodes, 1):
 
             # Save the current checkpoint
             self.save()
+
+            # Update the Cur Episode tensor
+            self.cur_episode_assign_op.eval(session=self.sess, feed_dict={self.cur_epsiode_input: self.cur_episode_tensor.eval(self.sess) + 1})
 
             # Evaluate Now to see how it behave
             if cur_episode % self.config.evaluate_every == 0:
@@ -154,8 +184,7 @@ class Agent:
             for t in itertools.count():
 
                 # Update the Global step
-                self.global_step_assign_op.eval(session=self.sess, feed_dict={
-                    self.global_step_input: self.global_step_tensor.eval(self.sess) + 1})
+                self.global_step_assign_op.eval(session=self.sess, feed_dict={self.global_step_input: self.global_step_tensor.eval(self.sess) + 1})
 
                 # time to update the target estimator
                 if self.global_step_tensor.eval(self.sess) % self.config.update_target_estimator_every == 0:
@@ -163,32 +192,26 @@ class Agent:
 
                 # Calculate the Epsilon for this time step
                 # Take an action ..Then observe and save
-                self.epsilon_assign_op.eval(session=self.sess, feed_dict={
-                    self.epsilon_input: max(self.config.final_epsilon,
-                                            self.epsilon_tensor.eval(self.sess) - self.epsilon_step)})
+                self.epsilon_assign_op.eval({self.epsilon_input: max(self.config.final_epsilon, self.epsilon_tensor.eval(self.sess) - self.epsilon_step)}, self.sess)
                 action = self.take_action(state)
                 next_state, reward, done = self.observe_and_save(state, self.environment.valid_actions[action])
 
                 # Sample a minibatch from the replay memory
-                state_batch, next_state_batch, action_batch, reward_batch, done_batch = self.memory.get_batch(
-                    self.config.batch_size)
+                state_batch, next_state_batch, action_batch, reward_batch, done_batch = self.memory.get_batch(self.config.batch_size)
 
                 # Calculate targets Then Compute the loss
                 q_values_next = self.estimator.predict(next_state_batch, type="target")
-                targets_batch = reward_batch + np.invert(done_batch).astype(
-                    np.float32) * self.config.discount_factor * np.amax(q_values_next, axis=1)
+                targets_batch = reward_batch + np.invert(done_batch).astype(np.float32) * self.config.discount_factor * np.amax(q_values_next, axis=1)
                 _ = self.estimator.update(state_batch, action_batch, targets_batch)
 
                 total_reward += reward
 
                 if done:  # IF terminal state so exit the episode
                     # Add summaries to tensorboard
-                    episode_summary = tf.Summary()
-                    episode_summary.value.add(simple_value=total_reward, node_name="episode_reward", tag="episode_reward")
-                    episode_summary.value.add(simple_value=t, node_name="episode_length", tag="episode_length")
-                    episode_summary.value.add(simple_value=self.epsilon_tensor.eval(self.sess), node_name="epsilon", tag="epsilon")
-                    self.summary_writer.add_summary(episode_summary, self.global_step_tensor.eval(self.sess))
-                    self.summary_writer.flush()
+                    summaries_dict = {'episode.total_reward': total_reward,
+                                      'episode.length': t,
+                                      'epsilon': self.epsilon_tensor.eval(self.sess)}
+                    self.add_summary(summaries_dict, self.global_step_tensor.eval(self.sess))
                     break
 
                 state = next_state
@@ -237,17 +260,15 @@ class Agent:
             for t in itertools.count():
 
                 best_action = policy(self.sess, state)
-                next_state, reward, done = self.evaluation_enviroment.step(
-                    self.evaluation_enviroment.valid_actions[best_action])
+                next_state, reward, done = self.evaluation_enviroment.step(self.evaluation_enviroment.valid_actions[best_action])
 
                 total_reward += reward
 
                 if done:
-                    episode_summary = tf.Summary()
-                    episode_summary.value.add(simple_value=total_reward, node_name="evaluation_rewards", tag="evaluation_rewards")
-                    episode_summary.value.add(simple_value=t, node_name="evaluation_length", tag="evaluation_length")
-                    self.summary_writer.add_summary(episode_summary, local_step * self.config.evaluation_episodes + cur_episode)
-                    self.summary_writer.flush()
+                    # Add summaries to tensorboard
+                    summaries_dict = {'evaluation.total_reward': total_reward,
+                                      'evaluation.length': t}
+                    self.add_summary(summaries_dict, local_step * 5 + cur_episode)
                     break
 
         print('Finished evaluation #{0}'.format(local_step))
