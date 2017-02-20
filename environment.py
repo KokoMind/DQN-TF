@@ -72,6 +72,8 @@ class Environment(object):
             else:
                 self.__frames_num = 1
 
+            self.__state = tf.to_float(self.__state) / 255.0
+
     def __state_processor(self, state):
         return self.sess.run(self.__state, feed_dict={self.__input_state: state})
 
