@@ -83,7 +83,7 @@ class DQN(BaseModel):
             with tf.name_scope('lose'):
                 self.actions = tf.placeholder(tf.int32, shape=[None])
                 self.targets = tf.placeholder(tf.float32, [None])
-                gather_indices = tf.range(tf.shape(self.b_out)[0]) * tf.shape(self.b_out)[1] + self.actions
+                gather_indices = tf.range(config.batch_size) * tf.shape(self.b_out)[1] + self.actions
                 self.action_predictions = tf.gather(tf.reshape(self.b_out, [-1]), gather_indices)
                 # loss
                 self.losses = tf.squared_difference(self.targets, self.action_predictions)
