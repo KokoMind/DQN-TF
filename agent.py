@@ -271,4 +271,6 @@ class Agent:
                     self.add_summary(summaries_dict, local_step * 5 + cur_episode)
                     break
 
+                state = next_state
+
         print('Finished evaluation #{0}'.format(local_step))
