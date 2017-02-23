@@ -1,4 +1,4 @@
 # DQN-tf
 
 
-Deep Q-Network implemented using tensorflow Edit
+Deep Q-Network implemented using tensorflow 
