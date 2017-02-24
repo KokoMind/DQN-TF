@@ -13,7 +13,6 @@ class PrioritizedExperienceReplay(ReplayMemory):
         self.alpha= config.prm_alpha
         self._segments_num = config.batch_size
         self._queue = IndexedMaxHeap(self.max_size)
-        self.cnt=0
 
         self._set_boundaries()
     def _set_boundaries(self):
