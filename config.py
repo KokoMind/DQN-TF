@@ -29,6 +29,10 @@ class ReplayMemoryConfig(object):
 class PRMConfig(object):
     prm_max_size = 500000
     prm_init_size = 50000
+    initial_alpha = 0.5
+    initial_beta = 0.0
+    beta_grad = 0
+    alpha_grad = 0.5 / 5000000
 
 
 class EstimatorConfig(object):
