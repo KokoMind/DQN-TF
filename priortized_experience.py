@@ -7,7 +7,7 @@ class PrioritizedExperienceReplay(ReplayMemory):
 
     def __init__(self, config):
         super.__init__()
-        self._max_size = config.prm_max_size
+        self.max_size = config.prm_max_size
         self._segments_num = config.batch_size
         self._queue = IndexedMaxHeap(self.max_size)
 
@@ -16,15 +16,15 @@ class PrioritizedExperienceReplay(ReplayMemory):
 
     def push(self, state, next_state, action, reward, done):
         super.push(state, next_state, action, reward, done)
-        self.queue.update(self.queue.get_max_priority(), self.idx)
+        self._queue.update(self._queue.get_max_priority(), self.idx)
 
     def balance(self):
-        self.queue.balance()
+        self._queue.balance()
         self.set_boundaries()
 
     def update_priority(self, indices, deltas):
         for idx, delta in zip(indices, deltas):
-            self.queue.update(delta, idx)
+            self._queue.update(delta, idx)
 
     def sample(self):
         pass
