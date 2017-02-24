@@ -30,7 +30,8 @@ class BaseModel(object):
         activation_fn = tf.nn.relu
 
         with tf.variable_scope('behaviour'):
-            self.b_x = tf.placeholder(tf.float32, shape=[None] + shape, name="states")
+            self.b_x = tf.placeholder(tf.uint8, shape=[None] + shape, name="states")
+            self.b_x = tf.to_float(self.b_x) / 255.0
             self.b_conv1, self.behaviour_weights['conv1_w'], self.behaviour_weights['conv1_b'] = conv2d(self.b_x, 32, [8, 8], [4, 4], initializer, activation_fn,
                                                                                                         name='b_conv1')
             self.b_conv2, self.behaviour_weights['conv2_w'], self.behaviour_weights['conv2_b'] = conv2d(self.b_conv1, 64, [4, 4], [2, 2], initializer, activation_fn,
@@ -42,7 +43,8 @@ class BaseModel(object):
             self.b_out, self.behaviour_weights['out_w'], self.behaviour_weights['out_b'] = linear(self.b_fc1, num_outputs, name='b_out')
 
         with tf.variable_scope('target'):
-            self.t_x = tf.placeholder(tf.float32, shape=[None] + shape, name="states")
+            self.t_x = tf.placeholder(tf.uint8, shape=[None] + shape, name="states")
+            self.t_x = tf.to_float(self.t_x) / 255.0
             self.t_conv1, self.target_weights['conv1_w'], self.target_weights['conv1_b'] = conv2d(self.t_x, 32, [8, 8], [4, 4], initializer, activation_fn,
                                                                                                   name='t_conv1')
             self.t_conv2, self.target_weights['conv2_w'], self.target_weights['conv2_b'] = conv2d(self.t_conv1, 64, [4, 4], [2, 2], initializer, activation_fn,
@@ -81,9 +83,9 @@ class DQN(BaseModel):
         with tf.variable_scope("DQN"):
             # placeholders
             with tf.name_scope('lose'):
-                self.actions = tf.placeholder(tf.int32, shape=[None])
-                self.targets = tf.placeholder(tf.float32, [None])
-                gather_indices = tf.range(tf.shape(self.b_out)[0]) * tf.shape(self.b_out)[1] + self.actions
+                self.actions = tf.placeholder(tf.int32, shape=[None], name='actions')
+                self.targets = tf.placeholder(tf.float32, [None], name='targets')
+                gather_indices = tf.range(config.batch_size) * tf.shape(self.b_out)[1] + self.actions
                 self.action_predictions = tf.gather(tf.reshape(self.b_out, [-1]), gather_indices)
                 # loss
                 self.losses = tf.squared_difference(self.targets, self.action_predictions)

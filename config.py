@@ -14,7 +14,7 @@ class EnvConfig(object):
 class AgentConfig(object):
     initial_epsilon = 1.0
     final_epsilon = 0.1
-    exploration_steps = 500000
+    exploration_steps = 750000
     policy_fn = 'epsilon_greedy'
     discount_factor = 0.99
     evaluate_every = 25
@@ -22,8 +22,8 @@ class AgentConfig(object):
 
 
 class ReplayMemoryConfig(object):
-    rep_max_size = 100000
-    replay_memory_init_size = 10000
+    rep_max_size = 500000
+    replay_memory_init_size = 50000
 
 
 class EstimatorConfig(object):

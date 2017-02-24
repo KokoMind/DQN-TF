@@ -13,8 +13,8 @@ class ReplayMemory:
         self.shape = shape
         self.states = np.zeros(([self.max_size] + self.shape), dtype=np.uint8)
         self.next_states = np.zeros(([self.max_size] + self.shape), dtype=np.uint8)
-        self.actions = np.zeros(self.max_size, dtype=np.uint8)
-        self.rewards = np.zeros(self.max_size, dtype=np.int32)
+        self.actions = np.zeros(self.max_size, dtype=np.int8)
+        self.rewards = np.zeros(self.max_size, dtype=np.int8)
         self.done = np.zeros(self.max_size, dtype=np.bool)
         self.idx = 0
         self.cnt = 0
