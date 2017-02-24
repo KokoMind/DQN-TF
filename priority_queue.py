@@ -51,7 +51,19 @@ class IndexedMaxHeap:
             self._swap(i, j)
             i = j
 
-    def _insert(self, id):
+    @property
+    def size(self):
+        return self._cur_size
+
+    def exist(self, id):
+        return self._index[id] != -1
+
+    def _insert(self, id, priority):
+        self._cur_size += 1
+        self._index[id] = self._cur_size
+        self._heap[self._cur_size] = id
+        self._keys[id] = priority
+        self._heap_up(self._cur_size)
         pass
 
     def remove(self, id):
