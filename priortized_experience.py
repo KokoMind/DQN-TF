@@ -52,7 +52,7 @@ class PrioritizedExperienceReplay(ReplayMemory):
                 strata_ends = []
                 step = 0
                 index = 0
-                for s in range(1, self.batch_size + 1):
+                for _ in range(self.batch_size):
                     while cdf[index] < step:
                         index += 1
                     strata_ends.append(index)
