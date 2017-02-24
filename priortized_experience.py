@@ -4,7 +4,7 @@ class PrioritizedExperienceReplay:
     def __init__(self):
         pass
 
-    def set_bounries(self):
+    def set_boundaries(self):
         pass
 
     def get_index(self):
