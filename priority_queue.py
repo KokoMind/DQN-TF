@@ -53,6 +53,7 @@ class MaxHeap:
 
         # Construct the heap and heapify it
         if arr:
+            self._cur_size = len(arr)
             self._heap = arr
             self.heapify()
         else:
@@ -66,10 +67,12 @@ class MaxHeap:
 
     def heap_push(self, item):
         """Push into max heap"""
+        self._cur_size += 1
         heap_push_max(self._heap, item)
 
     def heap_pop(self):
         """Pop from max heap"""
+        self._cur_size -= 1
         return heap_pop_max(self._heap)
 
     def heap_push_pop(self, item):
@@ -80,6 +83,6 @@ class MaxHeap:
         """Pop then push (Replace)"""
         return heap_pop_push_max(self._heap, item)
 
-    def heapsort(self):
+    def heap_sort(self):
         """Return the heap sorted to debug"""
         return [self.heap_pop() for i in range(self._cur_size)]
