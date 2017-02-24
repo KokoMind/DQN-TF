@@ -25,13 +25,17 @@ class ReplayMemoryConfig(object):
     rep_max_size = 500000
     replay_memory_init_size = 50000
 
+class PRMConfig(object):
+    prm_max_size = 500000
+    prm_init_size = 50000
+
 
 class EstimatorConfig(object):
     name = "DQN_Dragon"
     learning_rate = 0.00025
 
 
-class Experiment1(EnvConfig, AgentConfig, ReplayMemoryConfig, EstimatorConfig):
+class Experiment1(EnvConfig, AgentConfig, ReplayMemoryConfig, EstimatorConfig, PRMConfig):
     is_train = True
     cont_training = True
     is_play = False
