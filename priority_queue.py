@@ -1,49 +1,4 @@
-from heapq import _heapify_max as heapify_max
-from heapq import _siftdown_max, _siftup_max
-
-
-# ################################################################################################
-# Modified Version of heapq to be used as Max heap
-# Source https://github.com/he-zhe/heapq_max/blob/master/heapq_max/heapq_max.py
-
-def heap_pop_max(heap):
-    """Maxheap version of a heappop."""
-    lastelt = heap.pop()  # raises appropriate IndexError if heap is empty
-    if heap:
-        returnitem = heap[0]
-        heap[0] = lastelt
-        _siftup_max(heap, 0)
-        return returnitem
-    return lastelt
-
-
-def heap_pop_push_max(heap, item):
-    """Maxheap version of a heappop followed by a heappush."""
-    returnitem = heap[0]  # raises appropriate IndexError if heap is empty
-    heap[0] = item
-    _siftup_max(heap, 0)
-    return returnitem
-
-
-def heap_push_max(heap, item):
-    """Push item onto heap, maintaining the heap invariant."""
-    heap.append(item)
-    _siftdown_max(heap, 0, len(heap) - 1)
-
-
-def heap_push_pop_max(heap, item):
-    """Fast version of a heappush followed by a heappop."""
-    if heap and heap[0] > item:
-        # if item >= heap[0], it will be popped immediately after pushed
-        item, heap[0] = heap[0], item
-        _siftup_max(heap, 0)
-    return item
-
-
-# ################################################################################################
-
-
-class MaxHeap:
+class IndexedMaxHeap:
     """This class implements a Maxheap to be used in rank-based-prioritized-experience"""
 
     def __init__(self, heap_sz, arr=None, replace=True):
@@ -51,38 +6,36 @@ class MaxHeap:
         self.max_size = heap_sz
         self._replace = replace
 
-        # Construct the heap and heapify it
-        if arr:
-            self._cur_size = len(arr)
-            self._heap = arr
-            self.heapify()
-        else:
-            self._heap = []
+    def update(self, priority, e_id):
+        """Use it to push or update an element"""
+        pass
 
-    def heapify(self, arr=None):
-        """Transform list into a heap, in-place, in O(len(x)) time."""
-        if arr:
-            self._heap = arr
-        heapify_max(self._heap)
+    def get_max_priority(self):
+        """Get the max priority, if there is no element return 1"""
+        pass
 
-    def push(self, item):
-        """Push into max heap"""
-        self._cur_size += 1
-        heap_push_max(self._heap, item)
+    def balance(self):
+        """Rebalance the Priority Queue"""
+        pass
 
-    def pop(self):
-        """Pop from max heap"""
-        self._cur_size -= 1
-        return heap_pop_max(self._heap)
+    def get_experience_ids(self, priority_ids):
+        """Get Experience ids by priority ids"""
+        pass
 
-    def push_pop(self, item):
-        """Push then Pop"""
-        return heap_push_pop_max(self._heap, item)
+    def _insert(self, id):
+        pass
 
-    def pop_push(self, item):
-        """Pop then push (Replace)"""
-        return heap_pop_push_max(self._heap, item)
+    def remove(self, id):
+        pass
 
-    def sort_retrieve(self):
-        """Return the heap sorted to debug"""
-        return [self.pop() for i in range(self._cur_size)]
+    def _push(self):
+        pass
+
+    def _pop(self):
+        pass
+
+    def _heap_up(self):
+        pass
+
+    def _heap_down(self):
+        pass
