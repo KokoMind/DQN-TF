@@ -2,6 +2,8 @@ import numpy as np
 import tensorflow as tf
 from priority_queue import IndexedMaxHeap
 from experience_replay import ReplayMemory
+import math
+import numpy as np
 
 
 class PrioritizedExperienceReplay(ReplayMemory):
@@ -15,9 +17,9 @@ class PrioritizedExperienceReplay(ReplayMemory):
         self.alpha_grad = config.alpha_grad
         self._segments_num = config.batch_size
         self._queue = IndexedMaxHeap(self.max_size)
-        self._segment_size = []
-        self._segments_start = []
         self.init_alpha_beta()
+        self.start_learn = config.prm_init_size
+        self._set_boundaries()
 
     def init_alpha_beta(self):
         with tf.variable_scope('alpha'):
@@ -37,7 +39,29 @@ class PrioritizedExperienceReplay(ReplayMemory):
         self.sess.run(self.beta_assign_op, {self.beta_input: self.beta_tensor.eval(self.sess) + self.beta_grad})
 
     def _set_boundaries(self):
-        pass
+        self.distributions = []
+        partition_size = math.floor(self.max_size / self._segments_num)
+        for n in range(partition_size, self.size + 1, partition_size):
+            if self.learn_start <= n <= self.priority_size:
+                distribution = {}
+                probs = np.arange(1, n + 1)
+                probs **= -self.alpha_tensor.eval(self.sess)
+                probs = probs.mean()
+                distribution['probs'] = probs
+
+                cdf = np.cumsum(distribution['probs'])
+                strata_ends = []
+                step = 0
+                index = 0
+                for s in range(1, self.batch_size + 1):
+                    while cdf[index] < step:
+                        index += 1
+                    strata_ends.append(index)
+                    step += 1 / self.batch_size
+
+                distribution['boundries'] = strata_ends
+
+                self.distributions.append(distribution)
 
     def push(self, state, next_state, action, reward, done):
         super.push(state, next_state, action, reward, done)
@@ -45,7 +69,7 @@ class PrioritizedExperienceReplay(ReplayMemory):
 
     def balance(self):
         self._queue.balance()
-        self.set_boundaries()
+        self._set_boundaries()
 
     def update_priority(self, indices, deltas):
         for idx, delta in zip(indices, deltas):
@@ -60,12 +84,13 @@ class PrioritizedExperienceReplay(ReplayMemory):
         distribution = self.distributions[dist_index]
 
         for seg in range(self._segments_num):
-            batch_indices.append(np.random.choice(self._segment_size[seg]) + self._segments_start[seg])
+            seg_size = distribution['boundries'][seg + 1] - distribution['boundries'][seg]
+            batch_indices.append(np.random.choice(seg_size) + distribution['boundries'][seg])
 
         alpha_pow = [distribution[v] for v in batch_indices]
 
         batch_weigts = np.power(np.array(alpha_pow) * partition_max, -self.beta_tensor.eval(self.sess))
         batch_weigts /= np.max(batch_weigts)
 
-        return batch_indices, self.states[batch_indices], self.next_states[batch_indices], \
+        return batch_indices, batch_weigts, self.states[batch_indices], self.next_states[batch_indices], \
                self.actions[batch_indices], self.rewards[batch_indices], self.done[batch_indices]
