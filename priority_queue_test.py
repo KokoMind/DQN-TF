@@ -6,5 +6,6 @@ from priority_queue import MaxHeap
 arr = [random.randint(0, 1000) for i in range(20)]
 
 my = MaxHeap(20, arr, True)
-
-print(my.heap_sort())
+my.push(1)
+my.push(100000)
+print(my.sort_retrieve())
