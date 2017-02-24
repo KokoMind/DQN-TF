@@ -68,7 +68,7 @@ class MaxHeap:
         """Push into max heap"""
         heap_push_max(self._heap, item)
 
-    def heap_pop(self, item):
+    def heap_pop(self):
         """Pop from max heap"""
         return heap_pop_max(self._heap)
 
@@ -79,3 +79,7 @@ class MaxHeap:
     def heap_pop_push(self, item):
         """Pop then push (Replace)"""
         return heap_pop_push_max(self._heap, item)
+
+    def heapsort(self):
+        """Return the heap sorted to debug"""
+        return [self.heap_pop() for i in range(self._cur_size)]
