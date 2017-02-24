@@ -2,8 +2,6 @@ import numpy as np
 import tensorflow as tf
 from priority_queue import IndexedMaxHeap
 from experience_replay import ReplayMemory
-import math
-import numpy as np
 
 
 class PrioritizedExperienceReplay(ReplayMemory):
@@ -40,7 +38,7 @@ class PrioritizedExperienceReplay(ReplayMemory):
 
     def _set_boundaries(self):
         self.distributions = []
-        partition_size = math.floor(self.max_size / self._segments_num)
+        partition_size = np.floor(self.max_size / self._segments_num)
         for n in range(partition_size, self.size + 1, partition_size):
             if self.learn_start <= n <= self.priority_size:
                 distribution = {}
@@ -87,7 +85,7 @@ class PrioritizedExperienceReplay(ReplayMemory):
             seg_size = distribution['boundries'][seg + 1] - distribution['boundries'][seg]
             batch_indices.append(np.random.choice(seg_size) + distribution['boundries'][seg])
 
-        alpha_pow = [distribution[v] for v in batch_indices]
+        alpha_pow = [distribution['probs'][v] for v in batch_indices]
 
         batch_weigts = np.power(np.array(alpha_pow) * partition_max, -self.beta_tensor.eval(self.sess))
         batch_weigts /= np.max(batch_weigts)
