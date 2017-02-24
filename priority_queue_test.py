@@ -7,5 +7,7 @@ arr = [random.randint(0, 1000) for i in range(20)]
 
 my = MaxHeap(20, arr, True)
 my.push(1)
-my.push(100000)
+my.pop()
+my.push_pop(5)
+my.pop_push(10)
 print(my.sort_retrieve())
