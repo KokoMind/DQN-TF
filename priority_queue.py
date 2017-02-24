@@ -64,14 +64,18 @@ class MaxHeap:
             self._heap = arr
         heapify_max(self._heap)
 
-    def heap_push(self):
-        pass
+    def heap_push(self, item):
+        """Push into max heap"""
+        heap_push_max(self._heap, item)
 
-    def heap_pop(self):
-        pass
+    def heap_pop(self, item):
+        """Pop from max heap"""
+        return heap_pop_max(self._heap)
 
-    def heap_push_pop(self):
-        pass
+    def heap_push_pop(self, item):
+        """Push then Pop"""
+        return heap_push_pop_max(self._heap, item)
 
-    def heap_pop_push(self):
-        pass
+    def heap_pop_push(self, item):
+        """Pop then push (Replace)"""
+        return heap_pop_push_max(self._heap, item)
