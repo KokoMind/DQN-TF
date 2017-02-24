@@ -24,7 +24,7 @@ class Environment(object):
             self.__env = wrappers.Monitor(self.__env, self.__monitor_path, resume=True,
                                           video_callable=lambda count: count % config.record_video_every == 0)
 
-        self.__init_state_processor(config.state_processor_params, evaluation)
+        self.__init_state_processor(config.state_processor_params)
 
     def reset(self):
         state = self.__env.reset()
@@ -50,7 +50,7 @@ class Environment(object):
     def submit(self, api_key):
         gym.upload(self.__monitor_path, api_key=api_key)
 
-    def __init_state_processor(self, state_processor_params, reuse=False):
+    def __init_state_processor(self, state_processor_params):
         with tf.name_scope("state_processor"):
             h, w, c = self.__env.observation_space.shape
             self.__input_state = tf.placeholder(shape=[h, w, c], dtype=tf.uint8, name='input_state')
