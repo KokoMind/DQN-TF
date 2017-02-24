@@ -3,7 +3,7 @@ from experience_replay import ReplayMemory
 
 
 class PrioritizedExperienceReplay(ReplayMemory):
-    "the PRM class"
+    """the PRM class"""
 
     def __init__(self, config):
         super.__init__()
@@ -18,10 +18,12 @@ class PrioritizedExperienceReplay(ReplayMemory):
         self.queue.update(self.queue.get_max_priority(), self.idx)
 
     def balance(self):
-        pass
+        self.queue.balance()
+        self.set_boundaries()
 
-    def update_priority(self):
-        pass
+    def update_priority(self, indices, deltas):
+        for idx, delta in zip(indices, deltas):
+            self.queue.update(delta, idx)
 
     def sample(self):
         pass
