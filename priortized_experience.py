@@ -8,6 +8,7 @@ class PrioritizedExperienceReplay(ReplayMemory):
     def __init__(self, config):
         super.__init__()
         self.max_size = config.prm_max_size
+        self.segments_num = config.batch_size
         self.queue = IndexedMaxHeap(self.max_size)
 
     def set_boundaries(self):

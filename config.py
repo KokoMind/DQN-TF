@@ -25,6 +25,7 @@ class ReplayMemoryConfig(object):
     rep_max_size = 500000
     replay_memory_init_size = 50000
 
+
 class PRMConfig(object):
     prm_max_size = 500000
     prm_init_size = 50000
