@@ -49,16 +49,16 @@ class PrioritizedExperienceReplay(ReplayMemory):
                 distribution['probs'] = probs
 
                 cdf = np.cumsum(distribution['probs'])
-                strata_ends = []
+                boundries = []
                 step = 0
                 index = 0
                 for _ in range(self.batch_size):
                     while cdf[index] < step:
                         index += 1
-                    strata_ends.append(index)
+                    boundries.append(index)
                     step += 1 / self.batch_size
 
-                distribution['boundries'] = strata_ends
+                distribution['boundries'] = boundries
 
                 self.distributions.append(distribution)
 
