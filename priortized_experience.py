@@ -45,7 +45,7 @@ class PrioritizedExperienceReplay(ReplayMemory):
                 distribution = {}
                 probs = np.arange(1, n + 1)
                 probs **= -self.alpha_tensor.eval(self.sess)
-                probs = probs.mean()
+                probs /= probs.sum()
                 distribution['probs'] = probs
 
                 cdf = np.cumsum(distribution['probs'])
