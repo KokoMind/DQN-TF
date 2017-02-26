@@ -7,9 +7,10 @@ from experience_replay import ReplayMemory
 class PrioritizedExperienceReplay(ReplayMemory):
     """the PRM class"""
 
-    def __init__(self, sess, config):
-        super.__init__()
+    def __init__(self, sess, config, shape, max_size=500000):
+        ReplayMemory.__init__(self, shape, max_size)
         self.sess = sess
+        self.config = config
         self.max_size = config.prm_max_size
         self.beta_grad = config.beta_grad
         self.alpha_grad = config.alpha_grad
@@ -63,7 +64,7 @@ class PrioritizedExperienceReplay(ReplayMemory):
                 self.distributions.append(distribution)
 
     def push(self, state, next_state, action, reward, done):
-        super.push(state, next_state, action, reward, done)
+        ReplayMemory.push(state, next_state, action, reward, done)
         self._queue.update(self._queue.get_max_priority(), self.idx)
 
     def balance(self):
@@ -91,5 +92,4 @@ class PrioritizedExperienceReplay(ReplayMemory):
         batch_weigts = np.power(np.array(alpha_pow) * partition_max, -self.beta_tensor.eval(self.sess))
         batch_weigts /= np.max(batch_weigts)
 
-        return batch_indices, batch_weigts, self.states[batch_indices], self.next_states[batch_indices], \
-               self.actions[batch_indices], self.rewards[batch_indices], self.done[batch_indices]
+        return batch_indices, batch_weigts, self.states[batch_indices], self.next_states[batch_indices], self.actions[batch_indices], self.rewards[batch_indices], self.done[batch_indices]

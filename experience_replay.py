@@ -3,7 +3,7 @@ import numpy as np
 # TODO: Prioritized replay memory
 # https://arxiv.org/pdf/1511.05952.pdf
 
-class ReplayMemory:
+class ReplayMemory(object):
     def __init__(self, shape, max_size=500000):
         """
         input : enviroment instanse  , max size of replay memory
