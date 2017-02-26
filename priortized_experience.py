@@ -2,8 +2,6 @@ import numpy as np
 import tensorflow as tf
 from priority_queue import IndexedMaxHeap
 from experience_replay import ReplayMemory
-import math
-import numpy as np
 
 
 class PrioritizedExperienceReplay(ReplayMemory):
@@ -17,6 +15,7 @@ class PrioritizedExperienceReplay(ReplayMemory):
         self.alpha_grad = config.alpha_grad
         self._segments_num = config.batch_size
         self._queue = IndexedMaxHeap(self.max_size)
+
         self.init_alpha_beta()
         self.start_learn = config.prm_init_size
         self._set_boundaries()
@@ -40,26 +39,26 @@ class PrioritizedExperienceReplay(ReplayMemory):
 
     def _set_boundaries(self):
         self.distributions = []
-        partition_size = math.floor(self.max_size / self._segments_num)
+        partition_size = np.floor(self.max_size / self._segments_num)
         for n in range(partition_size, self.size + 1, partition_size):
             if self.learn_start <= n <= self.priority_size:
                 distribution = {}
                 probs = np.arange(1, n + 1)
                 probs **= -self.alpha_tensor.eval(self.sess)
-                probs = probs.mean()
+                probs /= probs.sum()
                 distribution['probs'] = probs
 
                 cdf = np.cumsum(distribution['probs'])
-                strata_ends = []
+                boundries = []
                 step = 0
                 index = 0
-                for s in range(1, self.batch_size + 1):
+                for _ in range(self.batch_size):
                     while cdf[index] < step:
                         index += 1
-                    strata_ends.append(index)
+                    boundries.append(index)
                     step += 1 / self.batch_size
 
-                distribution['boundries'] = strata_ends
+                distribution['boundries'] = boundries
 
                 self.distributions.append(distribution)
 
@@ -83,11 +82,11 @@ class PrioritizedExperienceReplay(ReplayMemory):
         partition_max = dist_index * partition_size
         distribution = self.distributions[dist_index]
 
-        for seg in range(self._segments_num):
+        for seg in range(1, self._segments_num + 1):
             seg_size = distribution['boundries'][seg + 1] - distribution['boundries'][seg]
             batch_indices.append(np.random.choice(seg_size) + distribution['boundries'][seg])
 
-        alpha_pow = [distribution[v] for v in batch_indices]
+        alpha_pow = [distribution['probs'][v] for v in batch_indices]
 
         batch_weigts = np.power(np.array(alpha_pow) * partition_max, -self.beta_tensor.eval(self.sess))
         batch_weigts /= np.max(batch_weigts)
