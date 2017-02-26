@@ -8,7 +8,7 @@ class IndexedMaxHeap:
     So if you don't understand You are good (Y)
     """
 
-    def __init__(self, heap_sz, arr=None):
+    def __init__(self, heap_sz):
         self._cur_size = 0
         self.max_size = heap_sz
         self._init_structure()
@@ -18,6 +18,12 @@ class IndexedMaxHeap:
         self._index = [-1 for i in range(self.max_size + 1000)]  # The index of the node in the heap
         self._keys = [0 for i in range(self.max_size + 1000)]  # The priorities
         self._rank = [-1 for i in range(self.max_size + 1000)]  # Nodes rank
+
+    def heapify(self, arr):
+        """Function takes an array and heapify it"""
+        # For debugging only
+        for i, item in enumerate(arr):
+            self._insert(item[1], item[0])
 
     def update(self, e_id, priority):
         """Use it to push or update an element"""
@@ -61,9 +67,9 @@ class IndexedMaxHeap:
         self._rank[i], self._rank[j] = self._heap[i], self._heap[j]
 
     def _heap_up(self, i):
-        while i > 1 and self._keys[self._heap[i / 2]] < self._keys[self._heap[i]]:
-            self._swap(i, i / 2)
-            i /= 2
+        while i > 1 and self._keys[self._heap[i // 2]] < self._keys[self._heap[i]]:
+            self._swap(i, i // 2)
+            i //= 2
 
     def _heap_down(self, i):
         j = 0
@@ -71,7 +77,7 @@ class IndexedMaxHeap:
             j = 2 * i
             if j < self._cur_size and self._keys[self._heap[j]] < self._keys[self._heap[j + 1]]:
                 j += 1
-            if self._keys[self._heap[i]] <= self._keys[self._heap[j]]:
+            if self._keys[self._heap[i]] >= self._keys[self._heap[j]]:
                 break
             self._swap(i, j)
             i = j
@@ -90,6 +96,7 @@ class IndexedMaxHeap:
         self._rank[self._cur_size] = id
         self._keys[id] = priority
         self._heap_up(self._cur_size)
+        # self._heap_down(self._cur_size)
 
     def _update_node(self, id, priority):
         """update depends on increasing the priority of decreasing it"""
@@ -109,9 +116,8 @@ class IndexedMaxHeap:
     def _pop(self):
         """Pop from the indexedMaxHeap"""
         maxi = self._heap[1]
-        self._cur_size -= 1
         self._swap(1, self._cur_size)
-        self._heap_down(1)
+        self._cur_size -= 1
         self._index[maxi] = -1
         self._heap[self._cur_size + 1] = -1
         self._rank[1] = self._heap[1]
@@ -123,4 +129,5 @@ class IndexedMaxHeap:
         sorted = []
         while self._cur_size > 0:
             sorted.append(self._pop())
-        return sorted.reverse()
+        sorted.reverse()
+        return sorted
