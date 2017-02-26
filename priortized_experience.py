@@ -8,7 +8,7 @@ class PrioritizedExperienceReplay(ReplayMemory):
     """the PRM class"""
 
     def __init__(self, sess, config, shape, max_size=500000):
-        ReplayMemory.__init__(self, shape, max_size)
+        super().__init__(shape, max_size)
         self.sess = sess
         self.config = config
         self.max_size = config.prm_max_size
@@ -16,6 +16,8 @@ class PrioritizedExperienceReplay(ReplayMemory):
         self.alpha_grad = config.alpha_grad
         self._segments_num = config.batch_size
         self._queue = IndexedMaxHeap(self.max_size)
+
+        ###### self.learn_start self.priority_size  self.size self.batch_size ???!!!
 
         self.init_alpha_beta()
         self.start_learn = config.prm_init_size
@@ -64,7 +66,7 @@ class PrioritizedExperienceReplay(ReplayMemory):
                 self.distributions.append(distribution)
 
     def push(self, state, next_state, action, reward, done):
-        ReplayMemory.push(state, next_state, action, reward, done)
+        super().push(state, next_state, action, reward, done)
         self._queue.update(self._queue.get_max_priority(), self.idx)
 
     def balance(self):

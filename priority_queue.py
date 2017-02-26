@@ -1,6 +1,3 @@
-import math
-
-
 class IndexedMaxHeap:
     """
     This class implements an IndexedMaxheap to be used in rank-based-prioritized-experience
@@ -14,14 +11,15 @@ class IndexedMaxHeap:
         self._init_structure()
 
     def _init_structure(self):
-        self._heap = [-1 for i in range(self.max_size + 1000)]  # My heap which will contain the nodes
-        self._index = [-1 for i in range(self.max_size + 1000)]  # The index of the node in the heap
-        self._keys = [0 for i in range(self.max_size + 1000)]  # The priorities
-        self._rank = [-1 for i in range(self.max_size + 1000)]  # Nodes rank
+        """Initialize the Arrays of my structure"""
+        self._heap = [-1 for _ in range(self.max_size + 1000)]  # My heap which will contain the nodes
+        self._index = [-1 for _ in range(self.max_size + 1000)]  # The index of the node in the heap
+        self._keys = [0 for _ in range(self.max_size + 1000)]  # The priorities
 
     def heapify(self, arr):
         """Function takes an array and heapify it"""
         # For debugging only
+        # Arr must be (Priority, e_id)
         for i, item in enumerate(arr):
             self._insert(item[1], item[0])
 
@@ -35,36 +33,35 @@ class IndexedMaxHeap:
 
     def get_max_priority(self):
         """Get the max priority, if there is no element return 1"""
-        if self.size > 0:
+        if self._cur_size > 0:
             return self._keys[self._heap[1]]
         else:
             return 1
 
     def balance(self):
         """Rebalance the Priority Queue"""
-        sorted = self._sort()
+        sorted_arr = self._sort()
         self._init_structure()
-        print(sorted)
         self._cur_size = 0
-        while self._cur_size < len(sorted):
+        while self._cur_size < len(sorted_arr):
             self._cur_size += 1
-            id, priority = sorted[self._cur_size - 1]
-            self._index[id] = self._cur_size
-            self._heap[self._cur_size] = id
-            self._rank[self._cur_size] = id
-            self._keys[id] = priority
-            self._heap_up(self._cur_size)
+            e_id, priority = sorted_arr[self._cur_size - 1]
+            self._index[e_id] = self._cur_size
+            self._heap[self._cur_size] = e_id
+            self._keys[e_id] = priority
+        # sort the heap
+        for i in range(self._cur_size // 2, 1, -1):
+            self._heap_down(i)
 
     def get_experience_ids(self, priority_ids):
-        """Get Experience ids by priority ids"""
-        return [self._rank[i] for i in priority_ids]
+        """Get Experience e_ids by priority e_ids"""
+        return [self._heap[i] for i in priority_ids]
 
     def _swap(self, i, j):
         """Function to use it in swapping between two nodes i and j"""
         # Pythonic way
         self._heap[i], self._heap[j] = self._heap[j], self._heap[i]
         self._index[self._heap[i]], self._index[self._heap[j]] = i, j
-        self._rank[i], self._rank[j] = self._heap[i], self._heap[j]
 
     def _heap_up(self, i):
         while i > 1 and self._keys[self._heap[i // 2]] < self._keys[self._heap[i]]:
@@ -72,7 +69,6 @@ class IndexedMaxHeap:
             i //= 2
 
     def _heap_down(self, i):
-        j = 0
         while 2 * i <= self._cur_size:
             j = 2 * i
             if j < self._cur_size and self._keys[self._heap[j]] < self._keys[self._heap[j + 1]]:
@@ -86,30 +82,29 @@ class IndexedMaxHeap:
     def size(self):
         return self._cur_size
 
-    def exist(self, id):
-        return self._index[id] != -1
+    def exist(self, e_id):
+        """Check Existence of this key"""
+        return self._index[e_id] != -1
 
-    def _insert(self, id, priority):
+    def _insert(self, e_id, priority):
         self._cur_size += 1
-        self._index[id] = self._cur_size
-        self._heap[self._cur_size] = id
-        self._rank[self._cur_size] = id
-        self._keys[id] = priority
+        self._index[e_id] = self._cur_size
+        self._heap[self._cur_size] = e_id
+        self._keys[e_id] = priority
         self._heap_up(self._cur_size)
 
-    def _update_node(self, id, priority):
+    def _update_node(self, e_id, priority):
         """update depends on increasing the priority of decreasing it"""
-        if priority > self._keys[id]:
-            self._keys[id] = priority
-            self._heap_up(self._index[id])
+        if priority > self._keys[e_id]:
+            self._keys[e_id] = priority
+            self._heap_up(self._index[e_id])
         else:
-            self._keys[id] = priority
-            self._heap_down(self._index[id])
+            self._keys[e_id] = priority
+            self._heap_down(self._index[e_id])
 
-    def remove(self, id):
-        pass
-
-    def _push(self):
+    def remove(self, e_id):
+        """Remove a specific key to be implemented if needed"""
+        # TODO
         pass
 
     def _pop(self):
@@ -119,14 +114,12 @@ class IndexedMaxHeap:
         self._cur_size -= 1
         self._index[maxi] = -1
         self._heap[self._cur_size + 1] = -1
-        self._rank[1] = self._heap[1]
         self._heap_down(1)
         return maxi, self._keys[maxi]
 
     def _sort(self):
-        """Function that destroy and return a sorted array (id, priority) """
-        sorted = []
+        """Function that destroy and return a sorted_arr array (e_id, priority) """
+        sorted_arr = []
         while self._cur_size > 0:
-            sorted.append(self._pop())
-        sorted.reverse()
-        return sorted
+            sorted_arr.append(self._pop())
+        return sorted_arr
