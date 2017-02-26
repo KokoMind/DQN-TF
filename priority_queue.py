@@ -42,18 +42,18 @@ class IndexedMaxHeap:
 
     def balance(self):
         """Rebalance the Priority Queue"""
-        self._init_structure()
         sorted = self._sort()
+        self._init_structure()
+        print(sorted)
         self._cur_size = 0
-        while self._cur_size <= len(sorted):
+        while self._cur_size < len(sorted):
             self._cur_size += 1
             id, priority = sorted[self._cur_size - 1]
             self._index[id] = self._cur_size
             self._heap[self._cur_size] = id
             self._rank[self._cur_size] = id
             self._keys[id] = priority
-        for i in range(math.floor(len(sorted) / 2), 1, -1):
-            self._heap_down(i)
+            self._heap_up(self._cur_size)
 
     def get_experience_ids(self, priority_ids):
         """Get Experience ids by priority ids"""
@@ -96,16 +96,15 @@ class IndexedMaxHeap:
         self._rank[self._cur_size] = id
         self._keys[id] = priority
         self._heap_up(self._cur_size)
-        # self._heap_down(self._cur_size)
 
     def _update_node(self, id, priority):
         """update depends on increasing the priority of decreasing it"""
         if priority > self._keys[id]:
             self._keys[id] = priority
-            self._heap_down(self._index[id])
+            self._heap_up(self._index[id])
         else:
             self._keys[id] = priority
-            self._heap_up(self._index[id])
+            self._heap_down(self._index[id])
 
     def remove(self, id):
         pass
