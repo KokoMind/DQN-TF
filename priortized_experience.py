@@ -7,8 +7,8 @@ from experience_replay import ReplayMemory
 class PrioritizedExperienceReplay(ReplayMemory):
     """the PRM class"""
 
-    def __init__(self, sess, config, shape, max_size=500000):
-        super().__init__(shape, max_size)
+    def __init__(self, sess, config):
+        super().__init__(config)
         self.sess = sess
         self.config = config
         self.max_size = config.prm_max_size

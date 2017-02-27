@@ -1,16 +1,14 @@
 import numpy as np
 
-# TODO: Prioritized replay memory
-# https://arxiv.org/pdf/1511.05952.pdf
 
 class ReplayMemory(object):
-    def __init__(self, shape, max_size=500000):
+    def __init__(self, config):
         """
         input : enviroment instanse  , max size of replay memory
 
         """
-        self.max_size = max_size
-        self.shape = shape
+        self.max_size = config.rep_max_size
+        self.shape = config.state_shape
         self.states = np.zeros(([self.max_size] + self.shape), dtype=np.uint8)
         self.next_states = np.zeros(([self.max_size] + self.shape), dtype=np.uint8)
         self.actions = np.zeros(self.max_size, dtype=np.int8)
