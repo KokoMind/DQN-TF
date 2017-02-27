@@ -16,9 +16,6 @@ class PrioritizedExperienceReplay(ReplayMemory):
         self.alpha_grad = config.alpha_grad
         self._segments_num = config.batch_size
         self._queue = IndexedMaxHeap(self.max_size)
-
-        ###### self.learn_start self.priority_size  self.size self.batch_size ???!!!
-
         self.init_alpha_beta()
         self.start_learn = config.prm_init_size
         self._set_boundaries()
