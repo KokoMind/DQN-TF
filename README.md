@@ -8,3 +8,4 @@
 #### Todo
 - Non-uniform Hyperparameters
 - Dueling Network Architectures
+- Double-DQN
