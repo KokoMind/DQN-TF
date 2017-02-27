@@ -17,6 +17,8 @@ class PrioritizedExperienceReplay(ReplayMemory):
         self._segments_num = config.batch_size
         self._queue = IndexedMaxHeap(self.max_size)
         self.init_alpha_beta()
+        self.init = tf.global_variables_initializer()
+        self.sess.run(self.init)
         self.start_learn = config.prm_init_size
         self._set_boundaries()
 
@@ -39,12 +41,12 @@ class PrioritizedExperienceReplay(ReplayMemory):
 
     def _set_boundaries(self):
         self.distributions = []
-        partition_size = np.floor(self.max_size / self._segments_num)
-        for n in range(partition_size, self.size + 1, partition_size):
-            if self.learn_start <= n <= self.priority_size:
+        partition_size = (np.floor(self.max_size / self._segments_num)).astype(int)
+        for n in range(partition_size, self.max_size + 1, partition_size):
+            if self.start_learn <= n <= self.max_size:
                 distribution = {}
                 probs = np.arange(1, n + 1)
-                probs **= -self.alpha_tensor.eval(self.sess)
+                probs = np.power(probs, -self.alpha_tensor.eval(self.sess))
                 probs /= probs.sum()
                 distribution['probs'] = probs
 
@@ -52,11 +54,11 @@ class PrioritizedExperienceReplay(ReplayMemory):
                 boundries = []
                 step = 0
                 index = 0
-                for _ in range(self.batch_size):
+                for _ in range(self._segments_num):
                     while cdf[index] < step:
                         index += 1
                     boundries.append(index)
-                    step += 1 / self.batch_size
+                    step += 1 / self._segments_num
 
                 distribution['boundries'] = boundries
 
