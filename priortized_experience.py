@@ -72,7 +72,7 @@ class PrioritizedExperienceReplay(ReplayMemory):
 
     def update_priority(self, indices, deltas):
         for idx, delta in zip(indices, deltas):
-            self._queue.update(delta, idx)
+            self._queue.update(idx, delta)
 
     def sample(self):
         batch_indices = []
