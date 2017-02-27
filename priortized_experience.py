@@ -59,7 +59,7 @@ class PrioritizedExperienceReplay(ReplayMemory):
                         index += 1
                     boundries.append(index)
                     step += 1 / self._segments_num
-
+                boundries.append(n)
                 distribution['boundries'] = boundries
 
                 self.distributions.append(distribution)
@@ -84,7 +84,7 @@ class PrioritizedExperienceReplay(ReplayMemory):
         partition_max = dist_index * partition_size
         distribution = self.distributions[dist_index]
 
-        for seg in range(1, self._segments_num + 1):
+        for seg in range(self._segments_num):
             seg_size = distribution['boundries'][seg + 1] - distribution['boundries'][seg]
             batch_indices.append(np.random.choice(seg_size) + distribution['boundries'][seg])
 

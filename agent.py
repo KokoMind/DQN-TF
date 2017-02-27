@@ -208,7 +208,7 @@ class Agent:
 
                 # Sample a minibatch from the replay memory
                 if self.config.prm:
-                    state_batch, next_state_batch, action_batch, reward_batch, done_batch = self.memory.sample()
+                    indices_batch, weights_batch, state_batch, next_state_batch, action_batch, reward_batch, done_batch = self.memory.sample()
                 else:
                     state_batch, next_state_batch, action_batch, reward_batch, done_batch = self.memory.get_batch(self.config.batch_size)
 
