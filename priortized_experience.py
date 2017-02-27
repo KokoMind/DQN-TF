@@ -79,7 +79,7 @@ class PrioritizedExperienceReplay(ReplayMemory):
     def sample(self):
         batch_indices = []
 
-        dist_index = np.floor(self.cnt / self.max_size * self._segments_num)
+        dist_index = (np.floor(self.cnt / self.max_size * self._segments_num)).astype(int)
         partition_size = np.floor(self.max_size / self._segments_num)
         partition_max = dist_index * partition_size
         distribution = self.distributions[dist_index]
