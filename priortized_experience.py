@@ -64,7 +64,7 @@ class PrioritizedExperienceReplay(ReplayMemory):
 
     def push(self, state, next_state, action, reward, done):
         super().push(state, next_state, action, reward, done)
-        self._queue.update(self._queue.get_max_priority(), self.idx)
+        self._queue.update(self.idx, self._queue.get_max_priority())
 
     def balance(self):
         self._queue.balance()
