@@ -35,6 +35,7 @@ class PrioritizedExperienceReplay(ReplayMemory):
 
     def update_alpha(self):
         self.sess.run(self.alpha_assign_op, {self.alpha_input: self.alpha_tensor.eval(self.sess) + self.alpha_grad})
+        self._set_boundaries()
 
     def update_beta(self):
         self.sess.run(self.beta_assign_op, {self.beta_input: self.beta_tensor.eval(self.sess) + self.beta_grad})
@@ -70,7 +71,6 @@ class PrioritizedExperienceReplay(ReplayMemory):
 
     def balance(self):
         self._queue.balance()
-        self._set_boundaries()
 
     def update_priority(self, indices, deltas):
         for idx, delta in zip(indices, deltas):
