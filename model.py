@@ -76,6 +76,7 @@ class DQN(BaseModel):
         BaseModel.__init__(self)
         self.name = config.name
         self.sess = sess
+        self.config = config
         self.num_actions = num_actions
         self.shape = config.state_shape
         self.learning_rate = config.learning_rate
@@ -85,10 +86,15 @@ class DQN(BaseModel):
             with tf.name_scope('lose'):
                 self.actions = tf.placeholder(tf.int32, shape=[None], name='actions')
                 self.targets = tf.placeholder(tf.float32, [None], name='targets')
+                self.weights = tf.placeholder(tf.float32, [None], name='weights')
                 gather_indices = tf.range(config.batch_size) * tf.shape(self.b_out)[1] + self.actions
                 self.action_predictions = tf.gather(tf.reshape(self.b_out, [-1]), gather_indices)
                 # loss
-                self.losses = tf.squared_difference(self.targets, self.action_predictions)
+                if config.prm:
+                    self.losses = tf.mul(tf.squared_difference(self.targets, self.action_predictions), self.weights)
+                else:
+                    self.losses = tf.squared_difference(self.targets, self.action_predictions)
+
                 self.loss = tf.reduce_mean(self.losses)
 
             self.optimizer = tf.train.RMSPropOptimizer(self.learning_rate, 0.99, 0.0, 1e-6)
@@ -104,7 +110,11 @@ class DQN(BaseModel):
         elif type == "target":
             return self.sess.run(self.t_out, {self.t_x: states})
 
-    def update(self, s, a, y):
-        feed_dict = {self.b_x: s, self.targets: y, self.actions: a}
+    def update(self, s, a, y, weights=None):
+        if self.config.prm:
+            feed_dict = {self.b_x: s, self.targets: y, self.actions: a, self.weights: weights}
+        else:
+            feed_dict = {self.b_x: s, self.targets: y, self.actions: a}
+
         _, loss = self.sess.run([self.update_step, self.loss], feed_dict)
         return loss

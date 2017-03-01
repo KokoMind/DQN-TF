@@ -9,6 +9,7 @@ import itertools
 
 from model import DQN
 from experience_replay import ReplayMemory
+from priortized_experience import PrioritizedExperienceReplay
 
 __version__ = 0.1
 
@@ -22,7 +23,11 @@ class Agent:
         self.config = config
         self.environment = environment
         self.evaluation_enviroment = evaluation_enviroment
-        self.memory = ReplayMemory(config.state_shape, config.rep_max_size)
+
+        if config.prm:
+            self.memory = PrioritizedExperienceReplay(sess, config)
+        else:
+            self.memory = ReplayMemory(config.state_shape, config.rep_max_size)
 
         self.init_dirs()
 
@@ -104,10 +109,13 @@ class Agent:
             action = self.take_action(state)
             next_state, reward, done = self.observe_and_save(state, self.environment.valid_actions[action])
             if done:
-                if i >= self.config.replay_memory_init_size:
-                    break
+                if self.config.prm:
+                    if i >= self.config.prm_init_size:
+                        break
                 else:
-                    state = self.environment.reset()
+                    if i >= self.config.replay_memory_init_size:
+                        break
+                state = self.environment.reset()
             else:
                 state = next_state
         print("finished initializing replay memory")
@@ -199,12 +207,19 @@ class Agent:
                 next_state, reward, done = self.observe_and_save(state, self.environment.valid_actions[action])
 
                 # Sample a minibatch from the replay memory
-                state_batch, next_state_batch, action_batch, reward_batch, done_batch = self.memory.get_batch(self.config.batch_size)
+                if self.config.prm:
+                    indices_batch, weights_batch, state_batch, next_state_batch, action_batch, reward_batch, done_batch = self.memory.sample()
+                else:
+                    state_batch, next_state_batch, action_batch, reward_batch, done_batch = self.memory.get_batch(self.config.batch_size)
 
                 # Calculate targets Then Compute the loss
                 q_values_next = self.estimator.predict(next_state_batch, type="target")
                 targets_batch = reward_batch + np.invert(done_batch).astype(np.float32) * self.config.discount_factor * np.amax(q_values_next, axis=1)
-                _ = self.estimator.update(state_batch, action_batch, targets_batch)
+
+                if self.config.prm:
+                    _ = self.estimator.update(state_batch, action_batch, targets_batch, weights_batch)
+                else:
+                    _ = self.estimator.update(state_batch, action_batch, targets_batch)
 
                 total_reward += reward
 
