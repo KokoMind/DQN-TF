@@ -110,6 +110,8 @@ class Agent:
                     state = self.environment.reset()
             else:
                 state = next_state
+        print("finished initializing replay memory")
+
 
     def policy_fn(self, fn_type, estimator, n_actions):
         """Function that contain definitions to various number of policy functions and choose between them"""
@@ -270,5 +272,7 @@ class Agent:
                                       'evaluation.length': t}
                     self.add_summary(summaries_dict, local_step * 5 + cur_episode)
                     break
+
+                state = next_state
 
         print('Finished evaluation #{0}'.format(local_step))
