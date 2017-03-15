@@ -17,8 +17,9 @@ class AgentConfig(object):
     exploration_steps = 750000
     policy_fn = 'epsilon_greedy'
     discount_factor = 0.99
-    evaluate_every = 25
-    evaluation_episodes = 5
+    evaluate_every = 200
+    evaluation_episodes = 1
+    train_every = 4
 
 
 class ReplayMemoryConfig(object):
