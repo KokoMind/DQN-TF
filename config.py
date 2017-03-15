@@ -23,7 +23,7 @@ class AgentConfig(object):
 
 
 class ReplayMemoryConfig(object):
-    rep_max_size = 500000
+    rep_max_size = 300000
     replay_memory_init_size = 50000
 
 
