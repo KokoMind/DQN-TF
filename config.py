@@ -20,6 +20,7 @@ class AgentConfig(object):
     evaluate_every = 200
     evaluation_episodes = 1
     train_every = 4
+    save_rm_every = 150000
 
 
 class ReplayMemoryConfig(object):

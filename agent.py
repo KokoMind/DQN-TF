@@ -112,7 +112,6 @@ class Agent:
                 state = next_state
         print("finished initializing replay memory")
 
-
     def policy_fn(self, fn_type, estimator, n_actions):
         """Function that contain definitions to various number of policy functions and choose between them"""
 
@@ -197,6 +196,9 @@ class Agent:
                 self.epsilon_assign_op.eval({self.epsilon_input: max(self.config.final_epsilon, self.epsilon_tensor.eval(self.sess) - self.epsilon_step)}, self.sess)
                 action = self.take_action(state)
                 next_state, reward, done = self.observe_and_save(state, self.environment.valid_actions[action])
+
+                if self.global_step_tensor.eval(self.sess) % self.config.save_rm_every == 0:
+                    self.memory.save()
 
                 if self.global_step_tensor.eval(self.sess) % self.config.train_every == 0:
                     # Sample a minibatch from the replay memory
