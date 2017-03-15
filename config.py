@@ -17,12 +17,14 @@ class AgentConfig(object):
     exploration_steps = 750000
     policy_fn = 'epsilon_greedy'
     discount_factor = 0.99
-    evaluate_every = 25
-    evaluation_episodes = 5
+    evaluate_every = 200
+    evaluation_episodes = 1
+    train_every = 4
+    save_rm_every = 150000
 
 
 class ReplayMemoryConfig(object):
-    rep_max_size = 300000
+    rep_max_size = 500000
     replay_memory_init_size = 50000
 
 
