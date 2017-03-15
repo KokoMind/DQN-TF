@@ -18,6 +18,11 @@ class ReplayMemory:
         self.idx = 0
         self.cnt = 0
 
+        try :
+            self.load()
+        except:
+            pass
+
     def push(self, state, next_state, action, reward, done):
         """
         add transition to memory
@@ -39,3 +44,19 @@ class ReplayMemory:
         """
         idxs = np.random.choice(range(self.cnt), batch_size)
         return self.states[idxs], self.next_states[idxs], self.actions[idxs], self.rewards[idxs], self.done[idxs]
+
+
+    def save(self):
+        np.save('states',self.states)
+        np.save('next_states',self.next_states)
+        np.save('actions',self.actions)
+        np.save('rewards',self.rewards)
+        np.save('done',self.done)
+
+
+    def load(self):
+        self.states=np.load('states.npy')
+        self.next_states=np.load('next_states.npy')
+        self.actions=np.load('actions.npy')
+        self.rewards=np.load('rewards.npy')
+        self.done=np.load('done.npy')
