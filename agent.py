@@ -160,7 +160,9 @@ class Agent:
         # Initialize the epsilon step, it's step, the policy function, the replay memory
         self.epsilon_step = (self.config.initial_epsilon - self.config.final_epsilon) / self.config.exploration_steps
         self.policy = self.policy_fn(self.config.policy_fn, self.estimator, self.environment.n_actions)
-        self.init_replay_memory()
+
+        if self.memory.cnt == 0:
+            self.init_replay_memory()
 
         for cur_episode in range(self.cur_episode_tensor.eval(self.sess) + 1, self.config.num_episodes, 1):
 
