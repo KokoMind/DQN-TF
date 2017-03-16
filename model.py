@@ -1,15 +1,3 @@
-import os
-import time
-import random
-import numpy as np
-from tqdm import tqdm
-import tensorflow as tf
-import utils
-import os
-import time
-import random
-import numpy as np
-from tqdm import tqdm
 import tensorflow as tf
 
 from layers import conv2d, linear
