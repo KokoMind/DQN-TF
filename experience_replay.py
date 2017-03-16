@@ -92,3 +92,4 @@ class ReplayMemory:
         self.done=np.load('../done_new.npy')
         self.idx=499999
         self.cnt=499999
+        print("loading done")
