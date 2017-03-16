@@ -27,6 +27,7 @@ class ReplayMemory:
         try :
             self.load()
         except:
+            print("error loading")
             pass
 
     def push(self, state, next_state, action, reward, done):
@@ -84,10 +85,10 @@ class ReplayMemory:
 
 
     def load(self):
-        self.states=np.load('states_new.npy')
+        self.states=np.load('../states_new.npy')
         # self.next_states=np.load('next_states.npy')
-        self.actions=np.load('actions_new.npy')
-        self.rewards=np.load('rewards_new.npy')
-        self.done=np.load('done_new.npy')
+        self.actions=np.load('../actions_new.npy')
+        self.rewards=np.load('../rewards_new.npy')
+        self.done=np.load('../done_new.npy')
         self.idx=499999
         self.cnt=499999
