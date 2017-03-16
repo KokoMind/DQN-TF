@@ -3,7 +3,7 @@ import numpy as np
  
 
 class ReplayMemory:
-    def __init__(self, shape, max_size=500000):
+    def __init__(self, shape, max_size=1000000):
         """
         input : enviroment instanse  , max size of replay memory
 
