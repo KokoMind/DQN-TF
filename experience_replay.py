@@ -16,7 +16,7 @@ class ReplayMemory:
         self.max_size = max_size
         self.shape = shape
         self.states = np.zeros(([self.max_size] + self.shape[:2]), dtype=np.uint8)
-        self.next_states = np.zeros(([self.max_size] + self.shape[:2]), dtype=np.uint8)
+        # self.next_states = np.zeros(([self.max_size] + self.shape[:2]), dtype=np.uint8)
         self.actions = np.zeros(self.max_size, dtype=np.int8)
         self.rewards = np.zeros(self.max_size, dtype=np.int8)
         self.done = np.zeros(self.max_size, dtype=np.bool)
@@ -77,15 +77,17 @@ class ReplayMemory:
 
     def save(self):
         np.save('states',self.states)
-        np.save('next_states',self.next_states)
+        # np.save('next_states',self.next_states)
         np.save('actions',self.actions)
         np.save('rewards',self.rewards)
         np.save('done',self.done)
 
 
     def load(self):
-        self.states=np.load('states.npy')
-        self.next_states=np.load('next_states.npy')
+        self.states=np.load('states_new.npy')
+        # self.next_states=np.load('next_states.npy')
         self.actions=np.load('actions.npy')
         self.rewards=np.load('rewards.npy')
         self.done=np.load('done.npy')
+        self.idx=499999
+        self.cnt=499999

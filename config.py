@@ -27,7 +27,7 @@ class ReplayMemoryConfig(object):
     rep_max_size = 1000000
     replay_memory_init_size = 50000
 
-
+ 
 class EstimatorConfig(object):
     name = "DQN_Dragon"
     learning_rate = 0.00025
