@@ -24,7 +24,7 @@ class AgentConfig(object):
 
 
 class ReplayMemoryConfig(object):
-    rep_max_size = 500000
+    rep_max_size = 1000000
     replay_memory_init_size = 50000
 
 
@@ -38,7 +38,7 @@ class Experiment1(EnvConfig, AgentConfig, ReplayMemoryConfig, EstimatorConfig):
     cont_training = True
     is_play = False
     num_episodes = 10000
-    update_target_estimator_every = 10000
+    update_target_estimator_every = 30000
     batch_size = 32
 
     experiment_dir = "./experiment_1/"

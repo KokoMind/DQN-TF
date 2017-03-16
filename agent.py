@@ -139,7 +139,7 @@ class Agent:
     def observe_and_save(self, state, action):
         """Function that observe the new state , reward and save it in the memory"""
         next_state, reward, done = self.environment.step(action)
-        self.memory.push(state, next_state, action, reward, done)
+        self.memory.push(state[:,:,3], next_state, action, reward, done)
         return next_state, reward, done
 
     def update_target_network(self):
